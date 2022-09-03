@@ -19,8 +19,11 @@ import (
 func main() {
 	config.InitConfig()
 	r := gin.Default()
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
+
 	r.GET("/healthz", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "Ok v1")
+		c.String(http.StatusOK, "Ok v1")
 	})
 
 	db := store.CreateDB()
