@@ -30,6 +30,7 @@ func main() {
 
 	u := r.Group("/api")
 	u.POST("/users", user.CreateUserHanlder(user.Create(db)))
+	u.GET("/users/:id", user.GetUserHanlder(user.GetUser(db)))
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
