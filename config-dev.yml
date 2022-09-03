@@ -1,0 +1,8 @@
+app:
+  port: "8080"
+postgres:
+  host: localhost
+  user: root
+  password: my-secret-pw@
+  dbname: slack-clone-api
+  port: "5432"

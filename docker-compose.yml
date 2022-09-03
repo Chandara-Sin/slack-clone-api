@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+    db:
+        image: postgres:14.4-alpine
+        restart: always
+        container_name: postgres
+        ports:
+            - '5432:5432'
+        environment:
+            - POSTGRES_USER=root
+            - POSTGRES_PASSWORD=my-secret-pw@
+            - POSTGRES_DB=slack-clone-api
+        volumes: 
+            - db:/var/lib/postgresql/data
+volumes:
+  db:
