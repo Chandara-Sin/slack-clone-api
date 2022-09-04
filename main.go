@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
@@ -21,6 +22,15 @@ func main() {
 	r := gin.Default()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{
+		"http://localhost:8000",
+	}
+	config.AllowHeaders = []string{
+		"Authorization",
+	}
+	r.Use(cors.New(config))
 
 	r.GET("/healthz", func(c *gin.Context) {
 		c.String(http.StatusOK, "Ok v1")
