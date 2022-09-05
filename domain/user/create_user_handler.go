@@ -49,8 +49,5 @@ func CreateUserHanlder(svc createUserFunc) gin.HandlerFunc {
 
 func hashPassword(pw string) (string, error) {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hashed), nil
+	return string(hashed), err
 }
