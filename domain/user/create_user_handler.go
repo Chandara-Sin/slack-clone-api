@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type createUserFunc func(User) error
@@ -23,7 +24,16 @@ func CreateUserHanlder(svc createUserFunc) gin.HandlerFunc {
 			return
 		}
 
-		err := svc.CreateUser(usr)
+		hashed, err := hashPassword(usr.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		usr.HashedPassword = hashed
+		err = svc.CreateUser(usr)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
@@ -35,4 +45,12 @@ func CreateUserHanlder(svc createUserFunc) gin.HandlerFunc {
 			"status": "ok",
 		})
 	}
+}
+
+func hashPassword(pw string) (string, error) {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashed), nil
 }

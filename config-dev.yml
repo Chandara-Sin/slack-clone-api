@@ -6,3 +6,5 @@ postgres:
   password: my-secret-pw@
   dbname: slack-clone-api
   port: "5432"
+jwt:
+  secret: slack-dev-secret
