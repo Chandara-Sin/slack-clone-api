@@ -14,9 +14,9 @@ func (fn getUserFunc) GetUser(ID string) (User, error) {
 
 func GetUserHanlder(svc getUserFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ID := c.Param("id")
+		ID, _ := c.Get("user")
 
-		usr, err := svc.GetUser(ID)
+		usr, err := svc.GetUser(ID.(string))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
