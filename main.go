@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"os/signal"
 	"slack-clone-api/config"
+	"slack-clone-api/domain/login"
 	"slack-clone-api/domain/user"
+	"slack-clone-api/mw"
 	"slack-clone-api/store"
 	"syscall"
 	"time"
@@ -26,10 +28,12 @@ func main() {
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{
 		"http://localhost:8000",
+		"http://localhost:3000",
 	}
 	config.AllowHeaders = []string{
 		"Authorization",
 	}
+	config.AllowCredentials = true
 	r.Use(cors.New(config))
 
 	r.GET("/healthz", func(c *gin.Context) {
@@ -41,7 +45,9 @@ func main() {
 		log.Println("auto migrate db: ", err)
 	}
 
+	r.POST("/api/oauth/token", login.LoginHanlder(login.GetUserByEmail(db)))
 	u := r.Group("/api")
+	u.Use(mw.JWTConfig(viper.GetString("jwt.secret")))
 	u.POST("/users", user.CreateUserHanlder(user.Create(db)))
 	u.GET("/users/:id", user.GetUserHanlder(user.GetUser(db)))
 
