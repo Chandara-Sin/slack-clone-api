@@ -15,6 +15,8 @@ postgres:
   password:
   dbname:
   port:
+jwt:
+  secret:
 ```
 
 ### Use Docker + Postgres
