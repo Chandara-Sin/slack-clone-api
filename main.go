@@ -49,7 +49,7 @@ func main() {
 	u := r.Group("/api")
 	u.Use(mw.JWTConfig(viper.GetString("jwt.secret")))
 	u.POST("/users", user.CreateUserHanlder(user.Create(db)))
-	u.GET("/users/:id", user.GetUserHanlder(user.GetUser(db)))
+	u.GET("/users", user.GetUserHanlder(user.GetUser(db)))
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

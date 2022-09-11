@@ -2,6 +2,7 @@ package user
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,9 +15,10 @@ func (fn getUserFunc) GetUser(ID string) (User, error) {
 
 func GetUserHanlder(svc getUserFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ID, _ := c.Get("user")
+		user, _ := c.Get("user")
+		ID := strconv.FormatUint(uint64(user.(*User).Id), 10)
 
-		usr, err := svc.GetUser(ID.(string))
+		usr, err := svc.GetUser(ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),

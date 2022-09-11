@@ -3,6 +3,8 @@ package mw
 import (
 	"fmt"
 	"net/http"
+	"slack-clone-api/domain/user"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -28,7 +30,12 @@ func JWTConfig(sign string) gin.HandlerFunc {
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			c.Set("user", claims["id"])
+			ID, _ := strconv.ParseUint(claims["id"].(string), 10, 64)
+			user := &user.User{
+				Id:   uint(ID),
+				Role: user.Role(claims["role"].(string)),
+			}
+			c.Set("user", user)
 		}
 
 		c.Next()
