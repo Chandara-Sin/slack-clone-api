@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os/signal"
+	"slack-clone-api/auth"
 	"slack-clone-api/config"
-	"slack-clone-api/domain/login"
 	"slack-clone-api/domain/user"
 	"slack-clone-api/mw"
 	"slack-clone-api/store"
@@ -45,7 +45,7 @@ func main() {
 		log.Println("auto migrate db: ", err)
 	}
 
-	r.POST("/api/oauth/token", login.LoginHanlder(login.GetUserByEmail(db)))
+	r.POST("/api/oauth/token", auth.JWTConfigHandler(user.GetUserByEmail(db), user.GetUser(db)))
 	u := r.Group("/api")
 	u.Use(mw.JWTConfig(viper.GetString("jwt.secret")))
 	u.POST("/users", user.CreateUserHanlder(user.Create(db)))
