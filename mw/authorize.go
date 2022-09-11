@@ -13,8 +13,8 @@ import (
 
 func JWTConfig(sign string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authorization := c.Request.Header.Get("Authorization")
-		tokenString := strings.TrimPrefix(authorization, "Bearer ")
+		auth := c.Request.Header.Get("Authorization")
+		tokenString := strings.TrimPrefix(auth, "Bearer ")
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -25,7 +25,9 @@ func JWTConfig(sign string) gin.HandlerFunc {
 		})
 
 		if err != nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": err.Error(),
+			})
 			return
 		}
 
