@@ -84,6 +84,7 @@ func JWTConfigHandler(svc getUserFunc, sve getUserFunc) gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{
 			"access_token":  authToken.AccessToken,
 			"refresh_token": authToken.RefreshToken,
+			"token_type":    "Bearer",
 		})
 
 	}
