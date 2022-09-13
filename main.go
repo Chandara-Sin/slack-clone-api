@@ -9,21 +9,31 @@ import (
 	"slack-clone-api/auth"
 	"slack-clone-api/config"
 	"slack-clone-api/domain/user"
+	"slack-clone-api/logger"
 	"slack-clone-api/mw"
 	"slack-clone-api/store"
 	"syscall"
 	"time"
 
 	"github.com/gin-contrib/cors"
+	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 func main() {
 	config.InitConfig()
 	r := gin.Default()
-	r.Use(gin.Logger())
-	r.Use(gin.Recovery())
+
+	zaplog, err := zap.NewProduction()
+	if err != nil {
+		log.Fatalf("can't initialize zap logger: %v", err)
+	}
+	defer zaplog.Sync()
+	r.Use(ginzap.Ginzap(zaplog, time.RFC3339, true))
+	r.Use(ginzap.RecoveryWithZap(zaplog, true))
+	r.Use(logger.Middleware(zaplog))
 
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{
