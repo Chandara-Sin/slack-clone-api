@@ -2,6 +2,7 @@ package user
 
 import (
 	"net/http"
+	"slack-clone-api/logger"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -15,9 +16,11 @@ func (fn createUserFunc) CreateUser(usr User) error {
 
 func CreateUserHanlder(svc createUserFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		usr := User{}
+		log := logger.Unwrap(c)
 
+		usr := User{}
 		if err := c.ShouldBindJSON(&usr); err != nil {
+			log.Error(err.Error())
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
@@ -26,6 +29,7 @@ func CreateUserHanlder(svc createUserFunc) gin.HandlerFunc {
 
 		hashed, err := hashPassword(usr.Password)
 		if err != nil {
+			log.Error(err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
@@ -35,6 +39,7 @@ func CreateUserHanlder(svc createUserFunc) gin.HandlerFunc {
 		usr.HashedPassword = hashed
 		err = svc.CreateUser(usr)
 		if err != nil {
+			log.Error(err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})

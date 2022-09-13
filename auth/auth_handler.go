@@ -3,6 +3,7 @@ package auth
 import (
 	"net/http"
 	"slack-clone-api/domain/user"
+	"slack-clone-api/logger"
 
 	"github.com/gin-gonic/gin"
 
@@ -22,9 +23,11 @@ func (fn getUserFunc) GetUser(ID string) (user.User, error) {
 
 func JWTConfigHandler(svc getUserFunc, sve getUserFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log := logger.Unwrap(c)
 		reqLogin := Login{}
 
 		if err := c.ShouldBindJSON(&reqLogin); err != nil {
+			log.Error(err.Error())
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
@@ -35,6 +38,7 @@ func JWTConfigHandler(svc getUserFunc, sve getUserFunc) gin.HandlerFunc {
 		if reqLogin.GrantType == Password {
 			res, err := svc.GetUserByEmail(reqLogin.Email)
 			if err != nil {
+				log.Error(err.Error())
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 					"error": "username or password is incorrect",
 				})
@@ -43,6 +47,7 @@ func JWTConfigHandler(svc getUserFunc, sve getUserFunc) gin.HandlerFunc {
 
 			match := checkPasswordHash(reqLogin.Password, res.HashedPassword)
 			if !match {
+				log.Error(err.Error())
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 					"error": "username or password is incorrect",
 				})
@@ -52,6 +57,7 @@ func JWTConfigHandler(svc getUserFunc, sve getUserFunc) gin.HandlerFunc {
 		} else if reqLogin.GrantType == RefreshToken {
 			token, err := ValidateToken(reqLogin.RefreshToken)
 			if err != nil {
+				log.Error(err.Error())
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 					"error": err.Error(),
 				})
@@ -65,6 +71,7 @@ func JWTConfigHandler(svc getUserFunc, sve getUserFunc) gin.HandlerFunc {
 
 			res, err := sve.GetUser(ID)
 			if err != nil {
+				log.Error(err.Error())
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 					"error": err.Error(),
 				})
@@ -75,6 +82,7 @@ func JWTConfigHandler(svc getUserFunc, sve getUserFunc) gin.HandlerFunc {
 
 		authToken, err := GenerateJWTPair(usr)
 		if err != nil {
+			log.Error(err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err,
 			})

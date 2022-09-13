@@ -31,7 +31,7 @@ func Middleware(log *zap.Logger) gin.HandlerFunc {
 	}
 }
 
-func Unwrap(c gin.Context) *zap.Logger {
+func Unwrap(c *gin.Context) *zap.Logger {
 	val, _ := c.Get(key)
 	if log, ok := val.(*zap.Logger); ok {
 		return log
