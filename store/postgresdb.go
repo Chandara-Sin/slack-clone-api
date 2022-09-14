@@ -11,7 +11,7 @@ import (
 func CreateDB() *gorm.DB {
 	dsn := fmt.Sprintf(
 		"host=%v user=%v password=%v  dbname=%v port=%v sslmode=disable TimeZone=UTC",
-		viper.GetString("postgres.host"),
+		viper.GetString("app.host"),
 		viper.GetString("postgres.user"),
 		viper.GetString("postgres.password"),
 		viper.GetString("postgres.dbname"),

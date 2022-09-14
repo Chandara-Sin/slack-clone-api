@@ -9,14 +9,13 @@ This is project use MakeFile
 ```yaml
 app:
   port:
-postgres:
   host:
+postgres:
   user:
   password:
   dbname:
   port:
 redis:
-  host:
   port:
   password:
 jwt:

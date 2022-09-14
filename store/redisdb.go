@@ -9,7 +9,7 @@ import (
 )
 
 func InitRedisDB(ctx context.Context) *redis.Client {
-	dsn := fmt.Sprintf("%v:%v", viper.GetString("redis.host"), viper.GetString("redis.port"))
+	dsn := fmt.Sprintf("%v:%v", viper.GetString("app.host"), viper.GetString("redis.port"))
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     dsn,
