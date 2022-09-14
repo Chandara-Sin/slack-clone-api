@@ -5,8 +5,9 @@ import "time"
 type Role string
 
 const (
-	ADMIN Role = "ADMIN"
-	STAFF Role = "STAFF"
+	Admin  Role = "admin"
+	Member Role = "member"
+	Guest  Role = "guest"
 )
 
 type User struct {
@@ -16,7 +17,7 @@ type User struct {
 	Email          string    `gorm:"unique" json:"email"`
 	Password       string    `gorm:"-" json:"password,omitempty"`
 	HashedPassword string    `json:"-"`
-	Role           Role      `json:"role"`
+	Role           Role      `gorm:"type:varchar(6)" json:"role"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }

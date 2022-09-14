@@ -18,7 +18,7 @@ func Middleware(log *zap.Logger) gin.HandlerFunc {
 		c.Set(key, l)
 
 		// Read the Body content
-		var bodyBytes []byte
+		bodyBytes := []byte{}
 		if c.Request.Body != nil {
 			bodyBytes, _ = io.ReadAll(c.Request.Body)
 		}
