@@ -15,6 +15,10 @@ postgres:
   password:
   dbname:
   port:
+redis:
+  host:
+  port:
+  password:
 jwt:
   secret:
 ```
