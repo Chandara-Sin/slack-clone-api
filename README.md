@@ -8,8 +8,8 @@ This is project use MakeFile
 
 ```yaml
 app:
-  port:
   host:
+  port:
 postgres:
   user:
   password:
@@ -20,6 +20,9 @@ redis:
   password:
 jwt:
   secret:
+api:
+  key:
+    public:
 ```
 
 ### Use Docker + Postgres

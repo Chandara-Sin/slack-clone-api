@@ -1,6 +1,7 @@
 package mw
 
 import (
+	b64 "encoding/base64"
 	"fmt"
 	"net/http"
 	"slack-clone-api/domain/user"
@@ -38,6 +39,22 @@ func JWTConfig(sign string) gin.HandlerFunc {
 				Role: user.Role(claims["role"].(string)),
 			}
 			c.Set("user", user)
+		}
+
+		c.Next()
+	}
+}
+
+func ValidatorOnlyAPIKey(apiKey string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		apiKeyHeader := c.Request.Header.Get("X-API-KEY")
+		apiKeyEnc := b64.StdEncoding.EncodeToString([]byte(apiKey))
+
+		if apiKeyHeader != apiKeyEnc {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "Unauthorized",
+			})
+			return
 		}
 
 		c.Next()

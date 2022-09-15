@@ -42,6 +42,7 @@ func main() {
 	}
 	config.AllowHeaders = []string{
 		"Authorization",
+		"X-API-KEY",
 	}
 	config.AllowCredentials = true
 	r.Use(cors.New(config))
@@ -55,10 +56,12 @@ func main() {
 		log.Println("auto migrate db: ", err)
 	}
 
-	r.POST("/api/oauth/token", auth.JWTConfigHandler(user.GetUserByEmail(db), user.GetUser(db)))
-	r.POST("/api/users", user.CreateUserHanlder(user.Create(db)))
+	a := r.Group("/api")
+	a.Use(mw.ValidatorOnlyAPIKey(viper.GetString("api.key.public")))
+	a.POST("/oauth/token", auth.JWTConfigHandler(user.GetUserByEmail(db), user.GetUser(db)))
+	a.POST("/users", user.CreateUserHanlder(user.Create(db)))
 
-	u := r.Group("/api")
+	u := a.Group("")
 	u.Use(mw.JWTConfig(viper.GetString("jwt.secret")))
 	u.GET("/users", user.GetUserHanlder(user.GetUser(db)))
 
