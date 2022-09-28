@@ -4,24 +4,14 @@ import (
 	"net/http"
 	"slack-clone-api/domain/user"
 	"slack-clone-api/logger"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
-	jwt "github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type getUserFunc func(string) (user.User, error)
-
-func (fn getUserFunc) GetUserByEmail(eml string) (user.User, error) {
-	return fn(eml)
-}
-
-func (fn getUserFunc) GetUser(ID string) (user.User, error) {
-	return fn(ID)
-}
-
-func JWTConfigHandler(svc getUserFunc, sve getUserFunc) gin.HandlerFunc {
+func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := logger.Unwrap(c)
 		reqLogin := Login{}
@@ -64,12 +54,9 @@ func JWTConfigHandler(svc getUserFunc, sve getUserFunc) gin.HandlerFunc {
 				return
 			}
 
-			ID := ""
-			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-				ID = claims["id"].(string)
-			}
+			claims := GetTokenClaims(token)
 
-			res, err := sve.GetUser(ID)
+			res, err := svc.GetUser(claims.ID)
 			if err != nil {
 				log.Error(err.Error())
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -85,6 +72,15 @@ func JWTConfigHandler(svc getUserFunc, sve getUserFunc) gin.HandlerFunc {
 			log.Error(err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err,
+			})
+			return
+		}
+
+		setTokenErr := svc.SetToken(strconv.FormatUint(uint64(usr.Id), 10), authToken)
+		if setTokenErr != nil {
+			log.Error(setTokenErr.Error())
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": setTokenErr,
 			})
 			return
 		}
