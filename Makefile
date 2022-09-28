@@ -9,3 +9,6 @@ up:
 
 down:
 	docker compose down
+
+remove volume:
+	docker volume rm slack-clone-backend_db
