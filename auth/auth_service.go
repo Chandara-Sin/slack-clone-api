@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"slack-clone-api/domain/user"
-	"strconv"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -34,10 +33,22 @@ func (a AuthStore) GetUserByEmail(eml string) (user.User, error) {
 func (a AuthStore) SetToken(ID string, token *AuthToken) error {
 	now := time.Now()
 	at, _ := ValidateToken(token.AccessToken)
-	claims := GetTokenClaims(at)
-	atDuration := claims.ExpiresAt.Time
-	err := a.RDB.Set(context.TODO(), ID, token.AccessToken, atDuration.Sub(now))
-	return err.Err()
+	atClaims := GetTokenClaims(at)
+	atDuration := atClaims.ExpiresAt.Time
+	atStatus := a.RDB.Set(context.TODO(), token.AccessToken, ID, atDuration.Sub(now))
+	if atStatus.Err() != nil {
+		return atStatus.Err()
+	}
+
+	rf, _ := ValidateToken(token.RefreshToken)
+	rfClaims := GetTokenClaims(rf)
+	rfDuration := rfClaims.ExpiresAt.Time
+	rfStatus := a.RDB.Set(context.TODO(), token.RefreshToken, ID, rfDuration.Sub(now))
+	if rfStatus.Err() != nil {
+		return rfStatus.Err()
+	}
+
+	return nil
 }
 
 func (a AuthStore) GetToken(ID string) (string, error) {
@@ -47,7 +58,7 @@ func (a AuthStore) GetToken(ID string) (string, error) {
 
 func GenerateJWTPair(usr user.User) (*AuthToken, error) {
 	atClaims := &JwtCustomClaims{
-		UserID: strconv.FormatUint(uint64(usr.Id), 10),
+		UserID: usr.Id.String(),
 		Role:   usr.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "https:slack-clone-api",
@@ -63,7 +74,7 @@ func GenerateJWTPair(usr user.User) (*AuthToken, error) {
 	}
 
 	rfClaims := &JwtCustomClaims{
-		UserID: strconv.FormatUint(uint64(usr.Id), 10),
+		UserID: usr.Id.String(),
 		Role:   usr.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "https:slack-clone-api",

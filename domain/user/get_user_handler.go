@@ -3,7 +3,6 @@ package user
 import (
 	"net/http"
 	"slack-clone-api/logger"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,9 +18,9 @@ func GetUserHanlder(svc getUserFunc) gin.HandlerFunc {
 		log := logger.Unwrap(c)
 
 		user, _ := c.Get("user")
-		ID := strconv.FormatUint(uint64(user.(*User).Id), 10)
+		ID := user.(*User).Id
 
-		usr, err := svc.GetUser(ID)
+		usr, err := svc.GetUser(ID.String())
 		if err != nil {
 			log.Error(err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{

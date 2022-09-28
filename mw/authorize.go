@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"slack-clone-api/domain/user"
-	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 )
 
 func JWTConfig(sign string) gin.HandlerFunc {
@@ -33,9 +33,10 @@ func JWTConfig(sign string) gin.HandlerFunc {
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			ID, _ := strconv.ParseUint(claims["id"].(string), 10, 64)
+			ID := claims["id"].(string)
+			UUID, _ := uuid.Parse(ID)
 			user := &user.User{
-				Id:   uint(ID),
+				Id:   UUID,
 				Role: user.Role(claims["role"].(string)),
 			}
 			c.Set("user", user)

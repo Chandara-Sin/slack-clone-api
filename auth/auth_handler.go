@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"slack-clone-api/domain/user"
 	"slack-clone-api/logger"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -76,7 +75,7 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 			return
 		}
 
-		setTokenErr := svc.SetToken(strconv.FormatUint(uint64(usr.Id), 10), authToken)
+		setTokenErr := svc.SetToken(usr.Id.String(), authToken)
 		if setTokenErr != nil {
 			log.Error(setTokenErr.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
