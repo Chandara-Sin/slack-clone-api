@@ -30,3 +30,10 @@ type AuthToken struct {
 	AccessToken  string
 	RefreshToken string
 }
+
+type AuthService interface {
+	GetUserByEmail(eml string) (user.User, error)
+	GetUser(ID string) (user.User, error)
+	SetToken(ID string, token *AuthToken) error
+	GetToken(ID string) (string, error)
+}

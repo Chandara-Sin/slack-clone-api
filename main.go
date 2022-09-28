@@ -55,10 +55,16 @@ func main() {
 	if err := db.AutoMigrate(&user.User{}); err != nil {
 		log.Println("auto migrate db: ", err)
 	}
+	rdb := store.InitRedisDB(context.Background())
 
 	a := r.Group("/api")
 	a.Use(mw.ValidatorOnlyAPIKey(viper.GetString("api.key.public")))
-	a.POST("/oauth/token", auth.JWTConfigHandler(user.GetUserByEmail(db), user.GetUser(db)))
+
+	authService := auth.AuthStore{
+		DB:  db,
+		RDB: rdb,
+	}
+	a.POST("/oauth/token", auth.JWTConfigHandler(authService))
 	a.POST("/users", user.CreateUserHanlder(user.Create(db)))
 
 	u := a.Group("")
