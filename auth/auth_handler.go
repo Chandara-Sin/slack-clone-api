@@ -75,11 +75,11 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 			return
 		}
 
-		setTokenErr := svc.SetToken(usr.Id.String(), authToken)
-		if setTokenErr != nil {
-			log.Error(setTokenErr.Error())
+		setErr := svc.SetToken(usr.Id.String(), authToken)
+		if setErr != nil {
+			log.Error(setErr.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": setTokenErr,
+				"error": setErr,
 			})
 			return
 		}

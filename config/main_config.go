@@ -8,12 +8,12 @@ import (
 )
 
 func InitConfig() {
-	viper.SetConfigName("config-dev") // name of config file (without extension)
-	viper.SetConfigType("yaml")       // REQUIRED if the config file does not have the extension in the name
-	viper.AddConfigPath(".")          // optionally look for config in the working directory
-	err := viper.ReadInConfig()       // Find and read the config file
+	viper.SetConfigName("config-dev")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	err := viper.ReadInConfig()
 	if err != nil {
-		fmt.Printf("Fatal error config file: %s \n", err) // Handle errors reading the config file
+		fmt.Printf("Fatal error config file: %s \n", err)
 	}
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
