@@ -21,7 +21,7 @@ type Login struct {
 }
 
 type JwtCustomClaims struct {
-	UserID string    `json:"id"`
+	UserID string    `json:"user_id"`
 	Role   user.Role `json:"role"`
 	jwt.RegisteredClaims
 }

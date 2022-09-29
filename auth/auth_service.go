@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -35,7 +36,7 @@ func (a AuthStore) SetToken(ID string, token *AuthToken) error {
 	at, _ := ValidateToken(token.AccessToken)
 	atClaims := GetTokenClaims(at)
 	atDuration := atClaims.ExpiresAt.Time
-	atStatus := a.RDB.Set(context.TODO(), token.AccessToken, ID, atDuration.Sub(now))
+	atStatus := a.RDB.Set(context.TODO(), atClaims.ID, token.AccessToken, atDuration.Sub(now))
 	if atStatus.Err() != nil {
 		return atStatus.Err()
 	}
@@ -43,7 +44,7 @@ func (a AuthStore) SetToken(ID string, token *AuthToken) error {
 	rf, _ := ValidateToken(token.RefreshToken)
 	rfClaims := GetTokenClaims(rf)
 	rfDuration := rfClaims.ExpiresAt.Time
-	rfStatus := a.RDB.Set(context.TODO(), token.RefreshToken, ID, rfDuration.Sub(now))
+	rfStatus := a.RDB.Set(context.TODO(), rfClaims.ID, token.RefreshToken, rfDuration.Sub(now))
 	if rfStatus.Err() != nil {
 		return rfStatus.Err()
 	}
@@ -61,6 +62,7 @@ func GenerateJWTPair(usr user.User) (*AuthToken, error) {
 		UserID: usr.Id.String(),
 		Role:   usr.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        uuid.New().String(),
 			Issuer:    "https:slack-clone-api",
 			Audience:  jwt.ClaimStrings{"Slack Auth Api"},
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(5 * time.Minute)),
@@ -77,6 +79,7 @@ func GenerateJWTPair(usr user.User) (*AuthToken, error) {
 		UserID: usr.Id.String(),
 		Role:   usr.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        uuid.New().String(),
 			Issuer:    "https:slack-clone-api",
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(10 * time.Minute)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -107,8 +110,9 @@ func ValidateToken(tokenString string) (*jwt.Token, error) {
 func GetTokenClaims(token *jwt.Token) *JwtCustomClaims {
 	payload := JwtCustomClaims{}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		payload.ID = claims["id"].(string)
+		payload.UserID = claims["user_id"].(string)
 		payload.Role = user.Role(claims["role"].(string))
+		payload.ID = claims["jti"].(string)
 
 		integ, decim := math.Modf(claims["exp"].(float64))
 		time := time.Unix(int64(integ), int64(decim*(1e9)))

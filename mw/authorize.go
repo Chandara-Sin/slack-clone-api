@@ -33,7 +33,7 @@ func JWTConfig(sign string) gin.HandlerFunc {
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			ID := claims["id"].(string)
+			ID := claims["user_id"].(string)
 			UUID, _ := uuid.Parse(ID)
 			user := &user.User{
 				Id:   UUID,
