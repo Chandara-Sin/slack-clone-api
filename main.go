@@ -67,7 +67,7 @@ func main() {
 	a.POST("/oauth/token", auth.JWTConfigHandler(authService))
 	a.POST("/users", user.CreateUserHanlder(user.Create(db)))
 
-	u := a.Group("")
+	u := r.Group("/api")
 	u.Use(mw.JWTConfig(viper.GetString("jwt.secret")))
 	u.GET("/users", user.GetUserHanlder(user.GetUser(db)))
 
