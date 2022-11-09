@@ -1,25 +1,50 @@
 package store
 
 import (
+	"database/sql"
 	"fmt"
+	"slack-clone-api/config"
 
 	"github.com/spf13/viper"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
+	"github.com/uptrace/bun/driver/pgdriver"
+	"github.com/uptrace/bun/extra/bundebug"
 )
 
-func CreateDB() *gorm.DB {
+// func CreateDB() *gorm.DB {
+// 	dsn := fmt.Sprintf(
+// 		"host=%v user=%v password=%v dbname=%v port=%v sslmode=disable TimeZone=UTC",
+// 		viper.GetString("app.host"),
+// 		viper.GetString("postgres.user"),
+// 		viper.GetString("postgres.password"),
+// 		viper.GetString("postgres.dbname"),
+// 		viper.GetString("postgres.port"),
+// 	)
+
+// 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	return db
+// }
+
+func CreateDB() *bun.DB {
+	config.InitConfig()
 	dsn := fmt.Sprintf(
-		"host=%v user=%v password=%v dbname=%v port=%v sslmode=disable TimeZone=UTC",
-		viper.GetString("app.host"),
+		"postgres://%v:%v@%v:%v/%v?sslmode=disable",
 		viper.GetString("postgres.user"),
 		viper.GetString("postgres.password"),
-		viper.GetString("postgres.dbname"),
+		viper.GetString("app.host"),
 		viper.GetString("postgres.port"),
+		viper.GetString("postgres.dbname"),
 	)
+	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
+	db := bun.NewDB(sqldb, pgdialect.New())
+	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
+	if err := db.Ping(); err != nil {
 		panic(err)
 	}
 

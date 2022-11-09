@@ -15,12 +15,13 @@ func (fn getUserFunc) GetUser(ID string) (User, error) {
 
 func GetUserHanlder(svc getUserFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		ID := c.Param("id")
 		log := logger.Unwrap(c)
+		// user, _ := c.Get("user")
+		// ID := user.(*User).ID
 
-		user, _ := c.Get("user")
-		ID := user.(*User).Id
-
-		usr, err := svc.GetUser(ID.String())
+		// usr, err := svc.GetUser(ID.String())
+		usr, err := svc.GetUser(ID)
 		if err != nil {
 			log.Error(err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{

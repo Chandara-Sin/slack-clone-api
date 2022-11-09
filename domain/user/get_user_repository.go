@@ -1,11 +1,15 @@
 package user
 
-import "gorm.io/gorm"
+import (
+	"context"
 
-func GetUser(db *gorm.DB) func(string) (User, error) {
+	"github.com/uptrace/bun"
+)
+
+func GetUser(db *bun.DB) func(string) (User, error) {
 	return func(ID string) (User, error) {
 		usr := User{}
-		r := db.First(&usr, ID)
-		return usr, r.Error
+		err := db.NewSelect().Model(&usr).Where("id = ?", ID).Scan(context.TODO())
+		return usr, err
 	}
 }

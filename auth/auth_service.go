@@ -59,7 +59,7 @@ func (a AuthStore) GetToken(ID string) (string, error) {
 
 func GenerateJWTPair(usr user.User) (*AuthToken, error) {
 	atClaims := &JwtCustomClaims{
-		UserID: usr.Id.String(),
+		UserID: usr.ID.String(),
 		Role:   usr.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:        uuid.New().String(),
@@ -76,7 +76,7 @@ func GenerateJWTPair(usr user.User) (*AuthToken, error) {
 	}
 
 	rfClaims := &JwtCustomClaims{
-		UserID: usr.Id.String(),
+		UserID: usr.ID.String(),
 		Role:   usr.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:        uuid.New().String(),

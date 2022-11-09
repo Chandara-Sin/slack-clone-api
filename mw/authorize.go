@@ -36,7 +36,7 @@ func JWTConfig(sign string) gin.HandlerFunc {
 			ID := claims["user_id"].(string)
 			UUID, _ := uuid.Parse(ID)
 			user := &user.User{
-				Id:   UUID,
+				ID:   UUID,
 				Role: user.Role(claims["role"].(string)),
 			}
 			c.Set("user", user)
