@@ -55,7 +55,7 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 
 			claims := GetTokenClaims(token)
 
-			res, err := svc.GetUser(claims.ID)
+			res, err := svc.GetUser(claims.UserID)
 			if err != nil {
 				log.Error(err.Error())
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{

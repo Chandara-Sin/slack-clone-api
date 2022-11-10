@@ -17,7 +17,6 @@ require (
 	github.com/urfave/cli/v2 v2.23.4
 	go.uber.org/zap v1.19.1
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
-	gorm.io/gorm v1.23.8
 )
 
 require (
@@ -33,7 +32,6 @@ require (
 	github.com/goccy/go-json v0.9.11 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect

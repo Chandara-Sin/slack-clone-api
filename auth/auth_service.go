@@ -11,23 +11,24 @@ import (
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
-	"gorm.io/gorm"
+	"github.com/uptrace/bun"
 )
 
 type AuthStore struct {
-	DB  *gorm.DB
+	DB  *bun.DB
 	RDB *redis.Client
 }
 
 func (a AuthStore) GetUser(ID string) (user.User, error) {
 	usr := user.User{}
-	r := a.DB.First(&usr, ID)
-	return usr, r.Error
+	fmt.Println("ID", ID)
+	err := a.DB.NewSelect().Model(&usr).Where("id = ?", ID).Scan(context.TODO())
+	return usr, err
 }
 
 func (a AuthStore) GetUserByEmail(eml string) (user.User, error) {
 	usr := user.User{}
-	err := a.DB.Where("email = ?", eml).First(&usr).Error
+	err := a.DB.NewSelect().Model(&usr).Where("email = ?", eml).Scan(context.TODO())
 	return usr, err
 }
 

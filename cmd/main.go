@@ -6,9 +6,11 @@ import (
 	"log"
 	"net/http"
 	"os/signal"
+	"slack-clone-api/auth"
 	"slack-clone-api/config"
 	"slack-clone-api/domain/user"
 	"slack-clone-api/logger"
+	"slack-clone-api/mw"
 	"slack-clone-api/store"
 	"syscall"
 	"time"
@@ -50,25 +52,21 @@ func main() {
 	})
 
 	db := store.CreateDB()
-	// if err := db.AutoMigrate(&user.User{}); err != nil {
-	// 	log.Println("auto migrate db: ", err)
-	// }
-	// rdb := store.InitRedisDB(context.Background())
+	rdb := store.InitRedisDB(context.Background())
 
-	// a := r.Group("/api")
-	// a.Use(mw.ValidatorOnlyAPIKey(viper.GetString("api.key.public")))
+	a := r.Group("/api")
+	a.Use(mw.ValidatorOnlyAPIKey(viper.GetString("api.key.public")))
 
-	// authService := auth.AuthStore{
-	// 	DB:  db,
-	// 	RDB: rdb,
-	// }
-	// a.POST("/oauth/token", auth.JWTConfigHandler(authService))
-	// a.POST("/users", user.CreateUserHanlder(user.Create(db)))
+	authService := auth.AuthStore{
+		DB:  db,
+		RDB: rdb,
+	}
+	a.POST("/oauth/token", auth.JWTConfigHandler(authService))
+	a.POST("/users", user.CreateUserHanlder(user.Create(db)))
 
 	u := r.Group("/api")
-	// u.Use(mw.JWTConfig(viper.GetString("jwt.secret")))
+	u.Use(mw.JWTConfig(viper.GetString("jwt.secret")))
 	u.GET("/users/:id", user.GetUserHanlder(user.GetUser(db)))
-	u.POST("/users", user.CreateUserHanlder(user.Create(db)))
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
