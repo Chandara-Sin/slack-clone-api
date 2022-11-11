@@ -44,9 +44,3 @@ serve on `http://localhost:8080`
 ```sh
 make run
 ```
-
-### Run format
-
-```sh
-make format
-```
