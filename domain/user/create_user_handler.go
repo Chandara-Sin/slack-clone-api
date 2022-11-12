@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"net/http"
 	"slack-clone-api/logger"
 
@@ -8,10 +9,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type createUserFunc func(User) error
+type createUserFunc func(User, context.Context) error
 
-func (fn createUserFunc) CreateUser(usr User) error {
-	return fn(usr)
+func (fn createUserFunc) CreateUser(usr User, ctx context.Context) error {
+	return fn(usr, ctx)
 }
 
 func CreateUserHanlder(svc createUserFunc) gin.HandlerFunc {
@@ -37,7 +38,7 @@ func CreateUserHanlder(svc createUserFunc) gin.HandlerFunc {
 		}
 
 		usr.HashedPassword = hashed
-		err = svc.CreateUser(usr)
+		err = svc.CreateUser(usr, c)
 		if err != nil {
 			log.Error(err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{

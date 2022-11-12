@@ -26,6 +26,9 @@ func main() {
 	config.InitConfig()
 	r := gin.Default()
 
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
 	zaplog, err := zap.NewProduction()
 	if err != nil {
 		log.Fatalf("can't initialize zap logger: %v", err)
@@ -52,7 +55,7 @@ func main() {
 	})
 
 	db := store.CreateDB()
-	rdb := store.InitRedisDB(context.Background())
+	rdb := store.InitRedisDB(ctx)
 
 	a := r.Group("/api")
 	a.Use(mw.ValidatorOnlyAPIKey(viper.GetString("api.key.public")))
@@ -67,9 +70,6 @@ func main() {
 	u := r.Group("/api")
 	u.Use(mw.JWTConfig(viper.GetString("jwt.secret")))
 	u.GET("/users/:id", user.GetUserHanlder(user.GetUser(db)))
-
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
 
 	s := &http.Server{
 		Addr:           ":" + viper.GetString("app.port"),
