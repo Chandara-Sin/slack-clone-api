@@ -13,8 +13,8 @@ import (
 func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := logger.Unwrap(c)
-		reqLogin := Login{}
 
+		reqLogin := Login{}
 		if err := c.ShouldBindJSON(&reqLogin); err != nil {
 			log.Error(err.Error())
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -42,6 +42,14 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 				})
 				return
 			}
+
+			if token, _ := svc.GetToken(res.ID.String(), c); token != "" {
+				at, _ := ValidateToken(token)
+				atClaims := GetTokenClaims(at)
+				svc.ClearToken(atClaims.UserID, c)
+				svc.ClearToken(atClaims.ID, c)
+			}
+
 			usr = res
 		} else if reqLogin.GrantType == RefreshToken {
 			token, err := ValidateToken(reqLogin.RefreshToken)
@@ -54,7 +62,6 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 			}
 
 			claims := GetTokenClaims(token)
-
 			res, err := svc.GetUser(claims.UserID, c)
 			if err != nil {
 				log.Error(err.Error())
@@ -75,11 +82,10 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 			return
 		}
 
-		setErr := svc.SetToken(usr.ID.String(), authToken, c)
-		if setErr != nil {
-			log.Error(setErr.Error())
+		if svc.SetToken(usr.ID.String(), authToken, c); err != nil {
+			log.Error(err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": setErr,
+				"error": err,
 			})
 			return
 		}

@@ -37,7 +37,7 @@ func (a AuthStore) SetToken(ID string, token *AuthToken, ctx context.Context) er
 	at, _ := ValidateToken(token.AccessToken)
 	atClaims := GetTokenClaims(at)
 	atDuration := atClaims.ExpiresAt.Time
-	atStatus := a.RDB.Set(ctx, atClaims.ID, token.AccessToken, atDuration.Sub(now))
+	atStatus := a.RDB.Set(ctx, ID, token.AccessToken, atDuration.Sub(now))
 	if atStatus.Err() != nil {
 		return atStatus.Err()
 	}
@@ -45,7 +45,7 @@ func (a AuthStore) SetToken(ID string, token *AuthToken, ctx context.Context) er
 	rf, _ := ValidateToken(token.RefreshToken)
 	rfClaims := GetTokenClaims(rf)
 	rfDuration := rfClaims.ExpiresAt.Time
-	rfStatus := a.RDB.Set(ctx, rfClaims.ID, token.RefreshToken, rfDuration.Sub(now))
+	rfStatus := a.RDB.Set(ctx, atClaims.ID, token.RefreshToken, rfDuration.Sub(now))
 	if rfStatus.Err() != nil {
 		return rfStatus.Err()
 	}
@@ -56,6 +56,11 @@ func (a AuthStore) SetToken(ID string, token *AuthToken, ctx context.Context) er
 func (a AuthStore) GetToken(ID string, ctx context.Context) (string, error) {
 	rs, err := a.RDB.Get(ctx, ID).Result()
 	return rs, err
+}
+
+func (a AuthStore) ClearToken(key string, ctx context.Context) error {
+	rs := a.RDB.Del(ctx, key)
+	return rs.Err()
 }
 
 func GenerateJWTPair(usr user.User) (*AuthToken, error) {
@@ -119,6 +124,7 @@ func GetTokenClaims(token *jwt.Token) *JwtCustomClaims {
 		payload.UserID = claims["user_id"].(string)
 		payload.Role = user.Role(claims["role"].(string))
 		payload.ID = claims["jti"].(string)
+		payload.Subject = claims["sub"].(string)
 
 		integ, decim := math.Modf(claims["exp"].(float64))
 		time := time.Unix(int64(integ), int64(decim*(1e9)))
