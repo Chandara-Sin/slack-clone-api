@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"slack-clone-api/domain/user"
 	"slack-clone-api/logger"
@@ -25,7 +27,8 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 
 		usr := user.User{}
 		if reqLogin.GrantType == Password {
-			res, err := svc.GetUserByEmail(reqLogin.Email, c)
+			rs, err := validateUser(reqLogin, svc, c)
+
 			if err != nil {
 				log.Error(err.Error())
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -34,23 +37,14 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 				return
 			}
 
-			match := checkPasswordHash(reqLogin.Password, res.HashedPassword)
-			if !match {
-				log.Error(err.Error())
-				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-					"error": "username or password is incorrect",
-				})
-				return
-			}
-
-			if token, _ := svc.GetToken(res.ID.String(), c); token != "" {
+			if token, _ := svc.GetToken(rs.ID.String(), c); token != "" {
 				at, _ := ValidateToken(token)
 				atClaims := GetTokenClaims(at)
 				svc.ClearToken(atClaims.UserID, c)
 				svc.ClearToken(atClaims.ID, c)
 			}
 
-			usr = res
+			usr = rs
 		} else if reqLogin.GrantType == RefreshToken {
 			token, err := ValidateToken(reqLogin.RefreshToken)
 			if err != nil {
@@ -97,6 +91,19 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 		})
 
 	}
+}
+
+func validateUser(reqLogin Login, svc AuthService, ctx context.Context) (user.User, error) {
+	usr, err := svc.GetUserByEmail(reqLogin.Email, ctx)
+	if err != nil {
+		return usr, err
+	}
+
+	match := checkPasswordHash(reqLogin.Password, usr.HashedPassword)
+	if !match {
+		return usr, errors.New("incorrect password")
+	}
+	return usr, nil
 }
 
 func checkPasswordHash(password, hash string) bool {
