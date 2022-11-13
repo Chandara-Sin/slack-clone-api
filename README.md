@@ -4,7 +4,7 @@
 
 This is project use MakeFile
 
-### create `config-dev.yml`
+### create `config.yml`
 
 ```yaml
 app:
@@ -35,6 +35,18 @@ make up
 
 ```sh
 make down
+```
+
+### Init Migrate Postgres
+
+```sh
+make migrate-init
+```
+
+### Migrate Postgres
+
+```sh
+make migrate
 ```
 
 ### Run server
