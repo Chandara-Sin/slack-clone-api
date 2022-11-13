@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"slack-clone-api/domain/user"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -32,8 +33,8 @@ type AuthToken struct {
 }
 
 type AuthService interface {
-	GetUserByEmail(eml string) (user.User, error)
-	GetUser(ID string) (user.User, error)
-	SetToken(ID string, token *AuthToken) error
-	GetToken(ID string) (string, error)
+	GetUserByEmail(eml string, ctx context.Context) (user.User, error)
+	GetUser(ID string, ctx context.Context) (user.User, error)
+	SetToken(ID string, token *AuthToken, ctx context.Context) error
+	GetToken(ID string, ctx context.Context) (string, error)
 }

@@ -19,25 +19,25 @@ type AuthStore struct {
 	RDB *redis.Client
 }
 
-func (a AuthStore) GetUser(ID string) (user.User, error) {
+func (a AuthStore) GetUser(ID string, ctx context.Context) (user.User, error) {
 	usr := user.User{}
 	fmt.Println("ID", ID)
-	err := a.DB.NewSelect().Model(&usr).Where("id = ?", ID).Scan(context.TODO())
+	err := a.DB.NewSelect().Model(&usr).Where("id = ?", ID).Scan(ctx)
 	return usr, err
 }
 
-func (a AuthStore) GetUserByEmail(eml string) (user.User, error) {
+func (a AuthStore) GetUserByEmail(eml string, ctx context.Context) (user.User, error) {
 	usr := user.User{}
-	err := a.DB.NewSelect().Model(&usr).Where("email = ?", eml).Scan(context.TODO())
+	err := a.DB.NewSelect().Model(&usr).Where("email = ?", eml).Scan(ctx)
 	return usr, err
 }
 
-func (a AuthStore) SetToken(ID string, token *AuthToken) error {
+func (a AuthStore) SetToken(ID string, token *AuthToken, ctx context.Context) error {
 	now := time.Now()
 	at, _ := ValidateToken(token.AccessToken)
 	atClaims := GetTokenClaims(at)
 	atDuration := atClaims.ExpiresAt.Time
-	atStatus := a.RDB.Set(context.TODO(), atClaims.ID, token.AccessToken, atDuration.Sub(now))
+	atStatus := a.RDB.Set(ctx, atClaims.ID, token.AccessToken, atDuration.Sub(now))
 	if atStatus.Err() != nil {
 		return atStatus.Err()
 	}
@@ -45,7 +45,7 @@ func (a AuthStore) SetToken(ID string, token *AuthToken) error {
 	rf, _ := ValidateToken(token.RefreshToken)
 	rfClaims := GetTokenClaims(rf)
 	rfDuration := rfClaims.ExpiresAt.Time
-	rfStatus := a.RDB.Set(context.TODO(), rfClaims.ID, token.RefreshToken, rfDuration.Sub(now))
+	rfStatus := a.RDB.Set(ctx, rfClaims.ID, token.RefreshToken, rfDuration.Sub(now))
 	if rfStatus.Err() != nil {
 		return rfStatus.Err()
 	}
@@ -53,18 +53,22 @@ func (a AuthStore) SetToken(ID string, token *AuthToken) error {
 	return nil
 }
 
-func (a AuthStore) GetToken(ID string) (string, error) {
-	rs, err := a.RDB.Get(context.TODO(), ID).Result()
+func (a AuthStore) GetToken(ID string, ctx context.Context) (string, error) {
+	rs, err := a.RDB.Get(ctx, ID).Result()
 	return rs, err
 }
 
 func GenerateJWTPair(usr user.User) (*AuthToken, error) {
+	atJti := uuid.New().String()
+	rfJti := uuid.New().String()
+
 	atClaims := &JwtCustomClaims{
 		UserID: usr.ID.String(),
 		Role:   usr.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ID:        uuid.New().String(),
-			Issuer:    "https:slack-clone-api",
+			ID:        atJti,
+			Subject:   rfJti,
+			Issuer:    "https://slack-clone-api",
 			Audience:  jwt.ClaimStrings{"Slack Auth Api"},
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(5 * time.Minute)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -80,7 +84,8 @@ func GenerateJWTPair(usr user.User) (*AuthToken, error) {
 		UserID: usr.ID.String(),
 		Role:   usr.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ID:        uuid.New().String(),
+			ID:        rfJti,
+			Subject:   atJti,
 			Issuer:    "https:slack-clone-api",
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(10 * time.Minute)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

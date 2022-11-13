@@ -25,7 +25,7 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 
 		usr := user.User{}
 		if reqLogin.GrantType == Password {
-			res, err := svc.GetUserByEmail(reqLogin.Email)
+			res, err := svc.GetUserByEmail(reqLogin.Email, c)
 			if err != nil {
 				log.Error(err.Error())
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -55,7 +55,7 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 
 			claims := GetTokenClaims(token)
 
-			res, err := svc.GetUser(claims.UserID)
+			res, err := svc.GetUser(claims.UserID, c)
 			if err != nil {
 				log.Error(err.Error())
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -75,7 +75,7 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 			return
 		}
 
-		setErr := svc.SetToken(usr.ID.String(), authToken)
+		setErr := svc.SetToken(usr.ID.String(), authToken, c)
 		if setErr != nil {
 			log.Error(setErr.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
