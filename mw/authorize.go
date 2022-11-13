@@ -1,9 +1,11 @@
 package mw
 
 import (
+	"context"
 	b64 "encoding/base64"
 	"fmt"
 	"net/http"
+	"slack-clone-api/auth"
 	"slack-clone-api/domain/user"
 	"strings"
 
@@ -12,10 +14,16 @@ import (
 	"github.com/google/uuid"
 )
 
-func JWTConfig(sign string) gin.HandlerFunc {
+type getTokenFunc func(string, context.Context) (string, error)
+
+func (fn getTokenFunc) GetToken(ID string, ctx context.Context) (string, error) {
+	return fn(ID, ctx)
+}
+
+func JWTConfig(sign string, svc getTokenFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		auth := c.Request.Header.Get("Authorization")
-		tokenString := strings.TrimPrefix(auth, "Bearer ")
+		authKey := c.Request.Header.Get("Authorization")
+		tokenString := strings.TrimPrefix(authKey, "Bearer ")
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -30,6 +38,16 @@ func JWTConfig(sign string) gin.HandlerFunc {
 				"error": err.Error(),
 			})
 			return
+		}
+
+		if payload := auth.GetTokenClaims(token); payload != nil {
+			at, err := svc.GetToken(payload.UserID, c)
+			if err != nil || at != tokenString {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+					"error": "unauthorized",
+				})
+				return
+			}
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
