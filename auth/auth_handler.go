@@ -28,7 +28,6 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 		usr := user.User{}
 		if reqLogin.GrantType == Password {
 			rs, err := validateUser(reqLogin, svc, c)
-
 			if err != nil {
 				log.Error(err.Error())
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{

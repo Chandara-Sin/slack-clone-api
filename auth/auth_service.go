@@ -21,7 +21,6 @@ type AuthStore struct {
 
 func (a AuthStore) GetUser(ID string, ctx context.Context) (user.User, error) {
 	usr := user.User{}
-	fmt.Println("ID", ID)
 	err := a.DB.NewSelect().Model(&usr).Where("id = ?", ID).Scan(ctx)
 	return usr, err
 }

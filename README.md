@@ -8,8 +8,8 @@ This is project use MakeFile
 
 ```yaml
 app:
-  host:
-  port:
+  host: localhost
+  port: "8080"
 postgres:
   user:
   password:
