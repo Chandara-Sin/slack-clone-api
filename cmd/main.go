@@ -43,10 +43,11 @@ func main() {
 		"http://localhost:8000",
 		"http://localhost:3000",
 	}
-	config.AllowHeaders = []string{
+	config.AllowHeaders = append(
+		config.AllowHeaders,
 		"Authorization",
 		"X-API-KEY",
-	}
+	)
 	config.AllowCredentials = true
 	r.Use(cors.New(config))
 
