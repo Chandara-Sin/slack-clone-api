@@ -45,26 +45,13 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 
 			usr = rs
 		} else if reqLogin.GrantType == RefreshToken {
-			token, err := ValidateToken(reqLogin.RefreshToken)
+			claims, err := clearAuthToken(svc, reqLogin.RefreshToken, c)
 			if err != nil {
 				log.Error(err.Error())
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 					"error": err.Error(),
 				})
 				return
-			}
-
-			claims := GetTokenClaims(token)
-
-			if _, err := svc.GetToken(claims.Subject, c); err != nil {
-				log.Error(err.Error())
-				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-					"error": "unauthorized",
-				})
-				return
-			} else {
-				svc.ClearToken(claims.UserID, c)
-				svc.ClearToken(claims.Subject, c)
 			}
 
 			res, err := svc.GetUser(claims.UserID, c)
@@ -115,25 +102,14 @@ func SignOutHandler(svc AuthService) gin.HandlerFunc {
 			})
 			return
 		}
-		token, err := ValidateToken(signOut.Token)
+
+		_, err := clearAuthToken(svc, signOut.Token, c)
 		if err != nil {
 			log.Error(err.Error())
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": err.Error(),
 			})
 			return
-		}
-
-		claims := GetTokenClaims(token)
-		if _, err := svc.GetToken(claims.Subject, c); err != nil {
-			log.Error(err.Error())
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "unauthorized",
-			})
-			return
-		} else {
-			svc.ClearToken(claims.UserID, c)
-			svc.ClearToken(claims.Subject, c)
 		}
 
 		c.JSON(http.StatusCreated, gin.H{
@@ -159,4 +135,21 @@ func validateUser(reqLogin Login, svc AuthService, ctx context.Context) (user.Us
 func checkPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
+}
+
+func clearAuthToken(svc AuthService, rfToken string, ctx context.Context) (*JwtCustomClaims, error) {
+	token, err := ValidateToken(rfToken)
+	if err != nil {
+		return nil, err
+	}
+
+	claims := GetTokenClaims(token)
+	if _, err := svc.GetToken(claims.Subject, ctx); err != nil {
+		return nil, errors.New("unauthorized")
+	} else {
+		svc.ClearToken(claims.UserID, ctx)
+		svc.ClearToken(claims.Subject, ctx)
+	}
+
+	return claims, nil
 }
