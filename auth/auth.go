@@ -21,6 +21,11 @@ type Login struct {
 	RefreshToken string    `json:"refresh_token,omitempty"`
 }
 
+type SignOut struct {
+	Token         string `json:"token"`
+	TokenTypeHint string `json:"token_type_hint"`
+}
+
 type JwtCustomClaims struct {
 	UserID string    `json:"user_id"`
 	Role   user.Role `json:"role"`

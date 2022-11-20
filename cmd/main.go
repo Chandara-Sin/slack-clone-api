@@ -71,6 +71,7 @@ func main() {
 	u := r.Group("/api")
 	u.Use(mw.JWTConfig(viper.GetString("jwt.secret"), mw.GetToken(rdb)))
 	u.GET("/users/info", user.GetUserHanlder(user.GetUser(db)))
+	u.POST("/oauth/revoke", auth.SignOutHandler(authService))
 
 	s := &http.Server{
 		Addr:           ":" + viper.GetString("app.port"),

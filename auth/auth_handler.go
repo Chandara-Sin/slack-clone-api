@@ -100,6 +100,45 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 			"refresh_token": authToken.RefreshToken,
 			"token_type":    "Bearer",
 		})
+	}
+}
+
+func SignOutHandler(svc AuthService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		log := logger.Unwrap(c)
+
+		signOut := SignOut{}
+		if err := c.ShouldBindJSON(&signOut); err != nil {
+			log.Error(err.Error())
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		token, err := ValidateToken(signOut.Token)
+		if err != nil {
+			log.Error(err.Error())
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		claims := GetTokenClaims(token)
+		if _, err := svc.GetToken(claims.Subject, c); err != nil {
+			log.Error(err.Error())
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "unauthorized",
+			})
+			return
+		} else {
+			svc.ClearToken(claims.UserID, c)
+			svc.ClearToken(claims.Subject, c)
+		}
+
+		c.JSON(http.StatusCreated, gin.H{
+			"status": "ok",
+		})
 
 	}
 }
