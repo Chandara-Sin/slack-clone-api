@@ -13,8 +13,8 @@ const key = "logger"
 
 func Middleware(log *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		reqID := c.Request.Header.Get("X-Request-ID")
-		l := log.With(zap.String("req-id", reqID))
+		apiKey := c.Request.Header.Get("X-API-KEY")
+		l := log.With(zap.String("x-api-id", apiKey))
 		c.Set(key, l)
 
 		// Read the Body content

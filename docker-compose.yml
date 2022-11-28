@@ -1,7 +1,7 @@
-version: '3.8'
+version: '3.9'
 services:
     db:
-        image: postgres:14.4-alpine
+        image: postgres:14.6-alpine
         restart: always
         container_name: postgres
         ports:
@@ -14,7 +14,7 @@ services:
             - ./volumes/db-data:/var/lib/postgresql/data
             - ./seeds/sql/dbinit.sql:/docker-entrypoint-initdb.d/dbinit.sql:ro
     redis:
-        image: redis:7.0.4-alpine
+        image: redis:7.0.5-alpine
         restart: always
         container_name: redis
         command: ["redis-server", "--appendonly", "yes", "--requirepass", "my-secret-pw@"]
