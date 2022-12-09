@@ -66,45 +66,42 @@ func GenerateJWTPair(usr user.User) (*AuthToken, error) {
 	atJti := uuid.New().String()
 	rfJti := uuid.New().String()
 
-	atClaims := &JwtCustomClaims{
-		UserID: usr.ID.String(),
-		Role:   usr.Role,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ID:        atJti,
-			Subject:   rfJti,
-			Issuer:    "https://slack-clone-api",
-			Audience:  jwt.ClaimStrings{"Slack Auth Api"},
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(5 * time.Minute)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		},
-	}
-	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
-	ats, err := at.SignedString([]byte(viper.GetString("jwt.secret")))
+	at, err := generateToken(usr, atJti, rfJti, (5 * time.Minute))
 	if err != nil {
 		return nil, err
 	}
 
-	rfClaims := &JwtCustomClaims{
-		UserID: usr.ID.String(),
-		Role:   usr.Role,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ID:        rfJti,
-			Subject:   atJti,
-			Issuer:    "https:slack-clone-api",
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(10 * time.Minute)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		},
-	}
-	rf := jwt.NewWithClaims(jwt.SigningMethodHS256, rfClaims)
-	rfs, err := rf.SignedString([]byte(viper.GetString("jwt.secret")))
+	rf, err := generateToken(usr, rfJti, atJti, (10 * time.Minute))
 	if err != nil {
 		return nil, err
 	}
 
 	return &AuthToken{
-		AccessToken:  ats,
-		RefreshToken: rfs,
+		AccessToken:  at,
+		RefreshToken: rf,
 	}, nil
+}
+
+func generateToken(usr user.User, ID string, subj string, durat time.Duration) (string, error) {
+	claims := &JwtCustomClaims{
+		UserID: usr.ID.String(),
+		Role:   usr.Role,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        ID,
+			Subject:   subj,
+			Issuer:    "https://slack-clone-api",
+			Audience:  jwt.ClaimStrings{"Slack Auth Api"},
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(durat)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tk, err := jwtToken.SignedString([]byte(viper.GetString("jwt.secret")))
+	if err != nil {
+		return "", err
+	}
+	return tk, nil
 }
 
 func ValidateToken(tokenString string) (*jwt.Token, error) {
