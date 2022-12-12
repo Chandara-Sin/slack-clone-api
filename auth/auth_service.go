@@ -33,23 +33,30 @@ func (a AuthStore) GetUserByEmail(eml string, ctx context.Context) (user.User, e
 
 func (a AuthStore) SetToken(ID string, token *AuthToken, ctx context.Context) error {
 	now := time.Now()
-	at, _ := ValidateToken(token.AccessToken)
-	atClaims := GetTokenClaims(at)
-	atDuration := atClaims.ExpiresAt.Time
-	atStatus := a.RDB.Set(ctx, ID, token.AccessToken, atDuration.Sub(now))
-	if atStatus.Err() != nil {
-		return atStatus.Err()
+	// at, _ := ValidateToken(token.AccessToken)
+	// atClaims := GetTokenClaims(at)
+	// atDuration := atClaims.ExpiresAt.Time
+	// atStatus := a.RDB.Set(ctx, ID, token.AccessToken, atDuration.Sub(now))
+	// if atStatus.Err() != nil {
+	// 	return atStatus.Err()
+	// }
+	if err := setToken(ctx, a.RDB, ID, token.AccessToken, now); err != nil {
+		return err
 	}
 
 	rf, _ := ValidateToken(token.RefreshToken)
 	rfClaims := GetTokenClaims(rf)
-	rfDuration := rfClaims.ExpiresAt.Time
-	rfStatus := a.RDB.Set(ctx, atClaims.ID, token.RefreshToken, rfDuration.Sub(now))
-	if rfStatus.Err() != nil {
-		return rfStatus.Err()
-	}
+	err := setToken(ctx, a.RDB, rfClaims.Subject, token.RefreshToken, now)
 
-	return nil
+	// rf, _ := ValidateToken(token.RefreshToken)
+	// rfClaims := GetTokenClaims(rf)
+	// rfDuration := rfClaims.ExpiresAt.Time
+	// rfStatus := a.RDB.Set(ctx, atClaims.ID, token.RefreshToken, rfDuration.Sub(now))
+	// if rfStatus.Err() != nil {
+	// 	return rfStatus.Err()
+	// }
+
+	return err
 }
 
 func (a AuthStore) GetToken(ID string, ctx context.Context) (string, error) {
@@ -102,6 +109,13 @@ func generateToken(usr user.User, ID string, subj string, durat time.Duration) (
 		return "", err
 	}
 	return tk, nil
+}
+
+func setToken(ctx context.Context, rdb *redis.Client, key string, token string, exp time.Time) error {
+	jwtToken, _ := ValidateToken(token)
+	claims := GetTokenClaims(jwtToken)
+	durat := claims.ExpiresAt.Time
+	return rdb.Set(ctx, key, token, durat.Sub(exp)).Err()
 }
 
 func ValidateToken(tokenString string) (*jwt.Token, error) {
