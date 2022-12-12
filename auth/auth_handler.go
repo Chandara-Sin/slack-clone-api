@@ -74,7 +74,7 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 			return
 		}
 
-		if svc.SetToken(usr.ID.String(), authToken, c); err != nil {
+		if svc.SetAuthToken(usr.ID.String(), authToken, c); err != nil {
 			log.Error(err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err,

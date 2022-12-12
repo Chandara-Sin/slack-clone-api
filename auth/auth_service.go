@@ -31,31 +31,14 @@ func (a AuthStore) GetUserByEmail(eml string, ctx context.Context) (user.User, e
 	return usr, err
 }
 
-func (a AuthStore) SetToken(ID string, token *AuthToken, ctx context.Context) error {
+func (a AuthStore) SetAuthToken(ID string, token *AuthToken, ctx context.Context) error {
 	now := time.Now()
-	// at, _ := ValidateToken(token.AccessToken)
-	// atClaims := GetTokenClaims(at)
-	// atDuration := atClaims.ExpiresAt.Time
-	// atStatus := a.RDB.Set(ctx, ID, token.AccessToken, atDuration.Sub(now))
-	// if atStatus.Err() != nil {
-	// 	return atStatus.Err()
-	// }
 	if err := setToken(ctx, a.RDB, ID, token.AccessToken, now); err != nil {
 		return err
 	}
-
 	rf, _ := ValidateToken(token.RefreshToken)
 	rfClaims := GetTokenClaims(rf)
 	err := setToken(ctx, a.RDB, rfClaims.Subject, token.RefreshToken, now)
-
-	// rf, _ := ValidateToken(token.RefreshToken)
-	// rfClaims := GetTokenClaims(rf)
-	// rfDuration := rfClaims.ExpiresAt.Time
-	// rfStatus := a.RDB.Set(ctx, atClaims.ID, token.RefreshToken, rfDuration.Sub(now))
-	// if rfStatus.Err() != nil {
-	// 	return rfStatus.Err()
-	// }
-
 	return err
 }
 
@@ -77,7 +60,6 @@ func GenerateJWTPair(usr user.User) (*AuthToken, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	rf, err := generateToken(usr, rfJti, atJti, (10 * time.Minute))
 	if err != nil {
 		return nil, err

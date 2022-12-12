@@ -40,7 +40,7 @@ type AuthToken struct {
 type AuthService interface {
 	GetUserByEmail(eml string, ctx context.Context) (user.User, error)
 	GetUser(ID string, ctx context.Context) (user.User, error)
-	SetToken(ID string, token *AuthToken, ctx context.Context) error
+	SetAuthToken(ID string, token *AuthToken, ctx context.Context) error
 	GetToken(ID string, ctx context.Context) (string, error)
 	ClearToken(ID string, ctx context.Context) error
 }
