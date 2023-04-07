@@ -61,17 +61,17 @@ func main() {
 	a := r.Group("/api")
 	a.Use(mw.ValidatorOnlyAPIKey(viper.GetString("api.key.public")))
 
-	authService := auth.AuthStore{
+	authRepository := auth.AuthRepository{
 		DB:  db,
 		RDB: rdb,
 	}
-	a.POST("/oauth/token", auth.JWTConfigHandler(authService))
+	a.POST("/oauth/token", auth.JWTConfigHandler(authRepository))
 	a.POST("/users", user.CreateUserHanlder(user.Create(db)))
 
 	u := r.Group("/api")
 	u.Use(mw.JWTConfig(viper.GetString("jwt.secret"), mw.GetToken(rdb)))
 	u.GET("/users/info", user.GetUserHanlder(user.GetUser(db)))
-	u.POST("/oauth/revoke", auth.SignOutHandler(authService))
+	u.POST("/oauth/revoke", auth.SignOutHandler(authRepository))
 
 	s := &http.Server{
 		Addr:           ":" + viper.GetString("app.port"),

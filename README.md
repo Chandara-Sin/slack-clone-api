@@ -37,7 +37,7 @@ make up
 make down
 ```
 
-### Init Migrate Postgres
+### Init Migrate Postgres - Start Project
 
 ```sh
 make migrate-init

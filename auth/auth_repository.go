@@ -14,24 +14,24 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type AuthStore struct {
+type AuthRepository struct {
 	DB  *bun.DB
 	RDB *redis.Client
 }
 
-func (a AuthStore) GetUser(ID string, ctx context.Context) (user.User, error) {
+func (a AuthRepository) GetUser(ID string, ctx context.Context) (user.User, error) {
 	usr := user.User{}
 	err := a.DB.NewSelect().Model(&usr).Where("id = ?", ID).Scan(ctx)
 	return usr, err
 }
 
-func (a AuthStore) GetUserByEmail(eml string, ctx context.Context) (user.User, error) {
+func (a AuthRepository) GetUserByEmail(eml string, ctx context.Context) (user.User, error) {
 	usr := user.User{}
 	err := a.DB.NewSelect().Model(&usr).Where("email = ?", eml).Scan(ctx)
 	return usr, err
 }
 
-func (a AuthStore) SetAuthToken(ID string, token *AuthToken, ctx context.Context) error {
+func (a AuthRepository) SetAuthToken(ID string, token *AuthToken, ctx context.Context) error {
 	now := time.Now()
 	if err := setToken(ctx, a.RDB, ID, token.AccessToken, now); err != nil {
 		return err
@@ -42,12 +42,12 @@ func (a AuthStore) SetAuthToken(ID string, token *AuthToken, ctx context.Context
 	return err
 }
 
-func (a AuthStore) GetToken(ID string, ctx context.Context) (string, error) {
+func (a AuthRepository) GetToken(ID string, ctx context.Context) (string, error) {
 	rs, err := a.RDB.Get(ctx, ID).Result()
 	return rs, err
 }
 
-func (a AuthStore) ClearToken(key string, ctx context.Context) error {
+func (a AuthRepository) ClearToken(key string, ctx context.Context) error {
 	rs := a.RDB.Del(ctx, key)
 	return rs.Err()
 }

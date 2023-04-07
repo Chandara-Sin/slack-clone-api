@@ -12,7 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
+func JWTConfigHandler(svc AuthRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := logger.Unwrap(c)
 
@@ -90,7 +90,7 @@ func JWTConfigHandler(svc AuthService) gin.HandlerFunc {
 	}
 }
 
-func SignOutHandler(svc AuthService) gin.HandlerFunc {
+func SignOutHandler(svc AuthRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := logger.Unwrap(c)
 
@@ -119,13 +119,13 @@ func SignOutHandler(svc AuthService) gin.HandlerFunc {
 	}
 }
 
-func validateUser(reqLogin Login, svc AuthService, ctx context.Context) (user.User, error) {
+func validateUser(reqLogin Login, svc AuthRepository, ctx context.Context) (user.User, error) {
 	usr, err := svc.GetUserByEmail(reqLogin.Email, ctx)
 	if err != nil {
 		return usr, err
 	}
 
-	match := checkPasswordHash(reqLogin.Password, usr.HashedPassword)
+	match := checkPasswordHash(reqLogin.Password, usr.Password)
 	if !match {
 		return usr, errors.New("incorrect password")
 	}
@@ -137,7 +137,7 @@ func checkPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
-func clearAuthToken(svc AuthService, rfToken string, ctx context.Context) (*JwtCustomClaims, error) {
+func clearAuthToken(svc AuthRepository, rfToken string, ctx context.Context) (*JwtCustomClaims, error) {
 	token, err := ValidateToken(rfToken)
 	if err != nil {
 		return nil, err
