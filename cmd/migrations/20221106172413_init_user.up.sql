@@ -4,9 +4,9 @@ CREATE TABLE IF NOT EXISTS users (
     "first_name" varchar(255) NOT NULL,
     "last_name" varchar(255) NOT NULL,
     "email" varchar(255) NOT NULL,
-    "password" varchar(255) NOT NULL,
+    "hashed_password" varchar(255) NOT NULL,
     "role" varchar(6) NOT NULL,
-    "created_at" timestamp NOT NULL,
-    "updated_at" timestamp NOT NULL,
+    "created_at" timestamp NOT NULL DEFAULT NOW(),
+    "updated_at" timestamp NOT NULL DEFAULT NOW(),
     PRIMARY KEY ("id")
 );

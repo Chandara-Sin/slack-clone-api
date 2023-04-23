@@ -11,7 +11,6 @@ func GetUser(db *bun.DB) func(uuid.UUID, context.Context) (User, error) {
 	return func(ID uuid.UUID, ctx context.Context) (User, error) {
 		usr := User{}
 		err := db.NewSelect().Model(&usr).Where("id = ?", ID).Scan(ctx)
-		usr.Password = ""
 		return usr, err
 	}
 }

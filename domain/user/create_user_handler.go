@@ -37,7 +37,7 @@ func CreateUserHanlder(svc createUserFunc) gin.HandlerFunc {
 			return
 		}
 
-		usr.Password = hashed
+		usr.HashedPassword = hashed
 		err = svc.CreateUser(usr, c)
 		if err != nil {
 			log.Error(err.Error())

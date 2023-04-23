@@ -21,9 +21,9 @@ type User struct {
 	FirstName      string    `json:"first_name"`
 	LastName       string    `json:"last_name"`
 	Email          string    `bun:",unique" json:"email"`
-	Password       string    `json:"password,omitempty"`
-	HashedPassword string    `bun:"-" json:"-"`
+	Password       string    `bun:"-" json:"password,omitempty"`
+	HashedPassword string    `json:"-"`
 	Role           Role      `bun:"type:varchar(6)" json:"role"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	CreatedAt      time.Time `bun:",nullzero,notnull,default:current_timestamp" json:"created_at"`
+	UpdatedAt      time.Time `bun:",nullzero,notnull,default:current_timestamp" json:"updated_at"`
 }

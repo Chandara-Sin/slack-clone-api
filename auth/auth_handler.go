@@ -125,7 +125,7 @@ func validateUser(reqLogin Login, svc AuthRepository, ctx context.Context) (user
 		return usr, err
 	}
 
-	match := checkPasswordHash(reqLogin.Password, usr.Password)
+	match := checkPasswordHash(reqLogin.Password, usr.HashedPassword)
 	if !match {
 		return usr, errors.New("incorrect password")
 	}
