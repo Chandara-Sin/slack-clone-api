@@ -7,11 +7,14 @@ up:
 down:
 	docker compose down
 
+migrate-init:
+	go run cmd/migrations/main.go db init
+
 migrate:
 	go run cmd/migrations/main.go db migrate
 
-migrate-init:
-	go run cmd/migrations/main.go db init
+rollback:
+	go run cmd/migrations/main.go db rollback
 
 create-sql:
 	go run cmd/migrations/main.go db create_sql
