@@ -2,14 +2,15 @@ package auth
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
+	"fmt"
+	"math/big"
 	"net/http"
 	"slack-clone-api/domain/user"
 	"slack-clone-api/logger"
 
 	"github.com/gin-gonic/gin"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 func JWTConfigHandler(svc AuthRepository) gin.HandlerFunc {
@@ -26,7 +27,7 @@ func JWTConfigHandler(svc AuthRepository) gin.HandlerFunc {
 		}
 
 		usr := user.User{}
-		if reqLogin.GrantType == Password {
+		if reqLogin.GrantType == AuthCode {
 			rs, err := validateUser(reqLogin, svc, c)
 			if err != nil {
 				log.Error(err.Error())
@@ -35,17 +36,15 @@ func JWTConfigHandler(svc AuthRepository) gin.HandlerFunc {
 				})
 				return
 			}
-
-			if token, _ := svc.GetToken(rs.ID.String(), c); token != "" {
-				at, _ := ValidateToken(token)
-				atClaims := GetTokenClaims(at)
-				svc.ClearToken(atClaims.UserID, c)
-				svc.ClearToken(atClaims.ID, c)
-			}
-
 			usr = rs
-		} else if reqLogin.GrantType == RefreshToken {
-			claims, err := clearAuthToken(svc, reqLogin.RefreshToken, c)
+			n := generateRandomNumber()
+			c.JSON(http.StatusOK, gin.H{
+				"auth_code": n,
+			})
+			return
+
+		} else if reqLogin.GrantType == VerifyCode {
+			claims, err := clearAuthToken(svc, reqLogin.AuthCode, c)
 			if err != nil {
 				log.Error(err.Error())
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -121,20 +120,12 @@ func SignOutHandler(svc AuthRepository) gin.HandlerFunc {
 
 func validateUser(reqLogin Login, svc AuthRepository, ctx context.Context) (user.User, error) {
 	usr, err := svc.GetUserByEmail(reqLogin.Email, ctx)
+	fmt.Println("user", usr)
 	if err != nil {
 		return usr, err
 	}
 
-	match := checkPasswordHash(reqLogin.Password, usr.HashedPassword)
-	if !match {
-		return usr, errors.New("incorrect password")
-	}
 	return usr, nil
-}
-
-func checkPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
 }
 
 func clearAuthToken(svc AuthRepository, rfToken string, ctx context.Context) (*JwtCustomClaims, error) {
@@ -152,4 +143,14 @@ func clearAuthToken(svc AuthRepository, rfToken string, ctx context.Context) (*J
 	}
 
 	return claims, nil
+}
+
+func generateRandomNumber() int64 {
+	max := big.NewInt(999999)
+	n, err := rand.Int(rand.Reader, max)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return n.Int64()
 }

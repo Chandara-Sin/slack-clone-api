@@ -10,15 +10,14 @@ import (
 type GrantType string
 
 const (
-	Password     GrantType = "password"
-	RefreshToken GrantType = "refresh_token"
+	AuthCode   GrantType = "auth_code"
+	VerifyCode GrantType = "verify_code"
 )
 
 type Login struct {
-	Email        string    `json:"email,omitempty"`
-	Password     string    `json:"password,omitempty"`
-	GrantType    GrantType `json:"grant_type" binding:"required"`
-	RefreshToken string    `json:"refresh_token,omitempty"`
+	Email     string    `json:"email,omitempty"`
+	AuthCode  string    `json:"auth_code,omitempty"`
+	GrantType GrantType `json:"grant_type" binding:"required"`
 }
 
 type SignOut struct {
