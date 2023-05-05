@@ -102,7 +102,6 @@ func SignOutHandler(svc AuthRepository) gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
 		})
-
 	}
 }
 
