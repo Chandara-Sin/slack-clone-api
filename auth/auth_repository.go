@@ -25,10 +25,24 @@ func (a AuthRepository) GetUser(ID string, ctx context.Context) (user.User, erro
 	return usr, err
 }
 
-func (a AuthRepository) GetUserByEmail(eml string, ctx context.Context) (user.User, error) {
-	usr := user.User{}
-	err := a.DB.NewSelect().Model(&usr).Where("email = ?", eml).Scan(ctx)
+func (a AuthRepository) InsertUserByEmail(eml string, ctx context.Context) (user.User, error) {
+	usr := user.User{
+		FirstName: "",
+		LastName:  "",
+		Email:     eml,
+		Role:      user.Member,
+	}
+	_, err := a.DB.NewInsert().Model(&usr).Ignore().Exec(ctx)
 	return usr, err
+}
+
+func (a AuthRepository) InsertAuthToken(authCode string, ctx context.Context) (string, error) {
+	token := uuid.New().String()
+	now := time.Now()
+	durat := now.Add(5 * time.Minute)
+	err := a.RDB.Set(ctx, token, authCode, durat.Sub(now)).Err()
+	return token, err
+
 }
 
 func (a AuthRepository) SetAuthToken(ID string, token *AuthToken, ctx context.Context) error {

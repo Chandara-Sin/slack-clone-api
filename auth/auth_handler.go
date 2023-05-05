@@ -4,11 +4,11 @@ import (
 	"context"
 	"crypto/rand"
 	"errors"
-	"fmt"
 	"math/big"
 	"net/http"
 	"slack-clone-api/domain/user"
 	"slack-clone-api/logger"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,18 +28,23 @@ func JWTConfigHandler(svc AuthRepository) gin.HandlerFunc {
 
 		usr := user.User{}
 		if reqLogin.GrantType == AuthCode {
-			rs, err := validateUser(reqLogin, svc, c)
+			rs, err := svc.InsertUserByEmail(reqLogin.Email, c)
 			if err != nil {
 				log.Error(err.Error())
-				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-					"error": "username or password is incorrect",
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": err,
 				})
 				return
 			}
-			usr = rs
+
 			n := generateRandomNumber()
+
+			token, _ := svc.InsertAuthToken(strconv.FormatInt(n, 10), c)
+
+			usr = rs
 			c.JSON(http.StatusOK, gin.H{
-				"auth_code": n,
+				"auth_code":    n,
+				"access_token": token,
 			})
 			return
 
@@ -118,16 +123,6 @@ func SignOutHandler(svc AuthRepository) gin.HandlerFunc {
 	}
 }
 
-func validateUser(reqLogin Login, svc AuthRepository, ctx context.Context) (user.User, error) {
-	usr, err := svc.GetUserByEmail(reqLogin.Email, ctx)
-	fmt.Println("user", usr)
-	if err != nil {
-		return usr, err
-	}
-
-	return usr, nil
-}
-
 func clearAuthToken(svc AuthRepository, rfToken string, ctx context.Context) (*JwtCustomClaims, error) {
 	token, err := ValidateToken(rfToken)
 	if err != nil {
@@ -147,10 +142,6 @@ func clearAuthToken(svc AuthRepository, rfToken string, ctx context.Context) (*J
 
 func generateRandomNumber() int64 {
 	max := big.NewInt(999999)
-	n, err := rand.Int(rand.Reader, max)
-	if err != nil {
-		fmt.Println(err)
-	}
-
+	n, _ := rand.Int(rand.Reader, max)
 	return n.Int64()
 }
