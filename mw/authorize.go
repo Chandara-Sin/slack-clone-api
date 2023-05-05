@@ -5,7 +5,6 @@ import (
 	b64 "encoding/base64"
 	"fmt"
 	"net/http"
-	"slack-clone-api/auth"
 	"slack-clone-api/domain/user"
 	"strings"
 
@@ -40,15 +39,15 @@ func JWTConfig(sign string, svc getTokenFunc) gin.HandlerFunc {
 			return
 		}
 
-		if payload := auth.GetTokenClaims(token); payload != nil {
-			at, err := svc.GetToken(payload.UserID, c)
-			if err != nil || at != tokenString {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-					"error": "unauthorized",
-				})
-				return
-			}
-		}
+		// if payload := auth.GetTokenClaims(token); payload != nil {
+		// 	at, err := svc.GetToken(payload.UserID, c)
+		// 	if err != nil || at != tokenString {
+		// 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		// 			"error": "unauthorized",
+		// 		})
+		// 		return
+		// 	}
+		// }
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			ID := claims["user_id"].(string)

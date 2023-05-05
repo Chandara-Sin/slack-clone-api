@@ -1,9 +1,7 @@
 package auth
 
 import (
-	"context"
 	"crypto/rand"
-	"errors"
 	"math/big"
 	"net/http"
 	"slack-clone-api/logger"
@@ -34,59 +32,12 @@ func SignUpHandler(svc AuthRepository) gin.HandlerFunc {
 		}
 
 		n := generateAuthCode()
-		token, _ := svc.InsertAuthToken(strconv.FormatInt(n, 10), c)
+		token, _ := svc.SetAuthToken(strconv.FormatInt(n, 10), c)
 
 		c.JSON(http.StatusOK, gin.H{
 			"auth_code":    n,
 			"access_token": token,
 		})
-
-		// usr := user.User{}
-		// if reqLogin.GrantType == AuthCode {
-		// usr = rs
-		// } else if reqLogin.GrantType == VerifyCode {
-		// 	claims, err := clearAuthToken(svc, reqLogin.AuthCode, c)
-		// 	if err != nil {
-		// 		log.Error(err.Error())
-		// 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-		// 			"error": err.Error(),
-		// 		})
-		// 		return
-		// 	}
-
-		// 	res, err := svc.GetUser(claims.UserID, c)
-		// 	if err != nil {
-		// 		log.Error(err.Error())
-		// 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-		// 			"error": err.Error(),
-		// 		})
-		// 		return
-		// 	}
-		// 	usr = res
-		// }
-
-		// authToken, err := GenerateJWTPair(usr)
-		// if err != nil {
-		// 	log.Error(err.Error())
-		// 	c.JSON(http.StatusInternalServerError, gin.H{
-		// 		"error": err,
-		// 	})
-		// 	return
-		// }
-
-		// if svc.SetAuthToken(usr.ID.String(), authToken, c); err != nil {
-		// 	log.Error(err.Error())
-		// 	c.JSON(http.StatusInternalServerError, gin.H{
-		// 		"error": err,
-		// 	})
-		// 	return
-		// }
-
-		// c.JSON(http.StatusOK, gin.H{
-		// 	"access_token":  authToken.AccessToken,
-		// 	"refresh_token": authToken.RefreshToken,
-		// 	"token_type":    "Bearer",
-		// })
 	}
 }
 
@@ -103,7 +54,7 @@ func AuthCodeHandler(svc AuthRepository) gin.HandlerFunc {
 			return
 		}
 
-		code, err := svc.GetToken(authCode.Token, c)
+		code, err := svc.GetAuthCode(authCode.Token, c)
 		if err != nil {
 			log.Error(err.Error())
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -139,37 +90,20 @@ func SignOutHandler(svc AuthRepository) gin.HandlerFunc {
 			return
 		}
 
-		_, err := clearAuthToken(svc, signOut.Token, c)
-		if err != nil {
-			log.Error(err.Error())
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
+		// _, err := clearAuthToken(svc, signOut.Token, c)
+		// if err != nil {
+		// 	log.Error(err.Error())
+		// 	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		// 		"error": err.Error(),
+		// 	})
+		// 	return
+		// }
 
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
 		})
 
 	}
-}
-
-func clearAuthToken(svc AuthRepository, rfToken string, ctx context.Context) (*JwtCustomClaims, error) {
-	token, err := ValidateToken(rfToken)
-	if err != nil {
-		return nil, err
-	}
-
-	claims := GetTokenClaims(token)
-	if _, err := svc.GetToken(claims.Subject, ctx); err != nil {
-		return nil, errors.New("unauthorized")
-	} else {
-		svc.ClearToken(claims.UserID, ctx)
-		svc.ClearToken(claims.Subject, ctx)
-	}
-
-	return claims, nil
 }
 
 func generateAuthCode() int64 {
