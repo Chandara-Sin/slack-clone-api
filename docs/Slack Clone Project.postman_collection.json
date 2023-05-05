@@ -1,0 +1,288 @@
+{
+	"info": {
+		"_postman_id": "0537b8cf-6e66-42d3-96ad-16ac7e37d87a",
+		"name": "Slack Clone Project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18432858"
+	},
+	"item": [
+		{
+			"name": "Refresh Token",
+			"item": [
+				{
+					"name": "Sign In / Token",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "c2xAYWNrLWRldi1wdWJsaWMta2V5",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-api-key",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"chandara@gmail.com\",\n    \"password\": \"123456789\",\n    \"grant_type\": \"password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/oauth/token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Refresh Token",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"refresh_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZWNlODlkMmMtMGFiNC00OWRiLWIxMzMtY2I3MDVkMWM2ZmRhIiwicm9sZSI6Im1lbWJlciIsImlzcyI6Imh0dHBzOi8vc2xhY2stY2xvbmUtYXBpIiwic3ViIjoiZjgzYWUzNDItMjgyMS00OTExLTg5YTMtNTQ3ZWM5NTVjODRhIiwiYXVkIjpbIlNsYWNrIEF1dGggQXBpIl0sImV4cCI6MTY4MjI2MDk3MCwiaWF0IjoxNjgyMjYwMzcwLCJqdGkiOiI1OTdhZDFiZS0xNjdlLTRkMDYtYTIwYi1lMDQyNWZlZGVhNjQifQ.oYfMhnUcxkfuOF7P1cPIA4Ee0S5F5v4ASeO9crRQ9oo\",\n    \"grant_type\": \"refresh_token\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/oauth/token",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"oauth",
+										"token"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 23 Apr 2023 14:28:19 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "882"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZWNlODlkMmMtMGFiNC00OWRiLWIxMzMtY2I3MDVkMWM2ZmRhIiwicm9sZSI6Im1lbWJlciIsImlzcyI6Imh0dHBzOi8vc2xhY2stY2xvbmUtYXBpIiwic3ViIjoiZDI3ZDUzZWMtNThhMC00NDVjLTg3NzMtM2I5MjVmOWIwYzFhIiwiYXVkIjpbIlNsYWNrIEF1dGggQXBpIl0sImV4cCI6MTY4MjI2MDM5OSwiaWF0IjoxNjgyMjYwMDk5LCJqdGkiOiI5NDg0MTI0ZC1lZmExLTQxZGQtYWRiNi1mM2EyZTUzNGI4YmMifQ.FH259df5-94O5NuMQqQOUhoLgxZgQsuEW5BDzoV7xSk\",\n    \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZWNlODlkMmMtMGFiNC00OWRiLWIxMzMtY2I3MDVkMWM2ZmRhIiwicm9sZSI6Im1lbWJlciIsImlzcyI6Imh0dHBzOi8vc2xhY2stY2xvbmUtYXBpIiwic3ViIjoiOTQ4NDEyNGQtZWZhMS00MWRkLWFkYjYtZjNhMmU1MzRiOGJjIiwiYXVkIjpbIlNsYWNrIEF1dGggQXBpIl0sImV4cCI6MTY4MjI2MDY5OSwiaWF0IjoxNjgyMjYwMDk5LCJqdGkiOiJkMjdkNTNlYy01OGEwLTQ0NWMtODc3My0zYjkyNWY5YjBjMWEifQ.Dw8x1_aQwi_EGVriT-9taayvW7aS7wiK-o4L34JZjDo\",\n    \"token_type\": \"Bearer\"\n}"
+						},
+						{
+							"name": "Token",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"chandara@gmail.com\",\n    \"password\": \"123456789\",\n    \"grant_type\": \"password\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/oauth/token",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"oauth",
+										"token"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "c2xAYWNrLWRldi1wdWJsaWMta2V5",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-api-key",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Chandara\",\n    \"last_name\": \"Sin\",\n    \"email\": \"chandara@gmail.com\",\n    \"password\": \"123456789\",\n    \"role\": \"member\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Info",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjU3MWZmNjgtMDE1MC00OWYyLTk0ZWEtOThiOWQ3ZTA1Yzg5Iiwicm9sZSI6Im1lbWJlciIsImlzcyI6Imh0dHBzOi8vc2xhY2stY2xvbmUtYXBpIiwic3ViIjoiZDAyNjA0OGMtZGIzZi00ZGJjLWEwMjctYzU5ODMxYWRmOWJhIiwiYXVkIjpbIlNsYWNrIEF1dGggQXBpIl0sImV4cCI6MTY4MjI0Njg4MiwiaWF0IjoxNjgyMjQ2NTgyLCJqdGkiOiJhMmZiYTFkMi1iODZjLTRhNGItOTg0OS1kNzM5OTM3MmMzMzYifQ.8Qp95z2VwIaKi8gAmas0uWT_jvd8nulvYMaQBnE6dL0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/info",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"users",
+								"info"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Healthz",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/healthz",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"healthz"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sign In",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"chandara@gmail.com\",\n    \"grant_type\": \"email\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/oauth/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
