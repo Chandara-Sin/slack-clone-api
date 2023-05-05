@@ -65,7 +65,7 @@ func main() {
 		DB:  db,
 		RDB: rdb,
 	}
-	a.POST("/oauth/token", auth.JWTConfigHandler(authRepository))
+	a.POST("/oauth/signup", auth.LoginHandler(authRepository))
 	a.POST("/users", user.CreateUserHanlder(user.Create(db)))
 
 	u := r.Group("/api")
