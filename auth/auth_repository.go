@@ -32,15 +32,17 @@ func (a AuthRepository) SetAuthToken(authCode string, ctx context.Context) (stri
 	durat := now.Add(5 * time.Minute)
 	err := a.RDB.Set(ctx, token, authCode, durat.Sub(now)).Err()
 	return token, err
-
 }
 
-func (a AuthRepository) GetAuthCode(ID string, ctx context.Context) (string, error) {
-	rs, err := a.RDB.Get(ctx, ID).Result()
+func (a AuthRepository) GetAuthCode(token string, ctx context.Context) (string, error) {
+	rs, err := a.RDB.Get(ctx, token).Result()
 	return rs, err
 }
 
 func (a AuthRepository) ClearAuthCode(key string, ctx context.Context) error {
 	rs := a.RDB.Del(ctx, key)
+	if rs.Err() == redis.Nil {
+		return nil
+	}
 	return rs.Err()
 }
