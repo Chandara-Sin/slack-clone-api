@@ -3,7 +3,7 @@ package auth
 import (
 	"slack-clone-api/domain/user"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type GrantType string
