@@ -90,14 +90,14 @@ func SignOutHandler(svc AuthRepository) gin.HandlerFunc {
 			return
 		}
 
-		// _, err := clearAuthToken(svc, signOut.Token, c)
-		// if err != nil {
-		// 	log.Error(err.Error())
-		// 	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-		// 		"error": err.Error(),
-		// 	})
-		// 	return
-		// }
+		err := svc.ClearAuthCode(signOut.Token, c)
+		if err != nil {
+			log.Error(err.Error())
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
 
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
