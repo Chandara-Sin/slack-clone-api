@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func LoginHandler(svc AuthRepository) gin.HandlerFunc {
+func SignUpHandler(svc AuthRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := logger.Unwrap(c)
 
@@ -87,6 +87,42 @@ func LoginHandler(svc AuthRepository) gin.HandlerFunc {
 		// 	"refresh_token": authToken.RefreshToken,
 		// 	"token_type":    "Bearer",
 		// })
+	}
+}
+
+func AuthCodeHandler(svc AuthRepository) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		log := logger.Unwrap(c)
+
+		authCode := AuthCode{}
+		if err := c.ShouldBindJSON(&authCode); err != nil {
+			log.Error(err.Error())
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		code, err := svc.GetToken(authCode.Token, c)
+		if err != nil {
+			log.Error(err.Error())
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		if code != authCode.Code {
+			log.Error("wrong auth code")
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "unauthorized",
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"status": "ok",
+		})
 	}
 }
 
