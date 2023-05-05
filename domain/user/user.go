@@ -16,14 +16,12 @@ const (
 )
 
 type User struct {
-	bun.BaseModel  `bun:"table:users,alias:u"`
-	ID             uuid.UUID `bun:"id,pk,type:uuid,default:uuid_generate_v4()" json:"id"`
-	FirstName      string    `json:"first_name"`
-	LastName       string    `json:"last_name"`
-	Email          string    `bun:",unique" json:"email"`
-	Password       string    `bun:"-" json:"password,omitempty"`
-	HashedPassword string    `json:"-"`
-	Role           Role      `bun:"type:varchar(6)" json:"role"`
-	CreatedAt      time.Time `bun:",nullzero,notnull,default:current_timestamp" json:"created_at"`
-	UpdatedAt      time.Time `bun:",nullzero,notnull,default:current_timestamp" json:"updated_at"`
+	bun.BaseModel `bun:"table:users,alias:u"`
+	ID            uuid.UUID `bun:"id,pk,type:uuid,default:uuid_generate_v4()" json:"id"`
+	FirstName     string    `json:"first_name"`
+	LastName      string    `json:"last_name"`
+	Email         string    `bun:",unique" json:"email"`
+	Role          Role      `bun:"type:varchar(6)" json:"role"`
+	CreatedAt     time.Time `bun:",nullzero,notnull,default:current_timestamp" json:"created_at"`
+	UpdatedAt     time.Time `bun:",nullzero,notnull,default:current_timestamp" json:"updated_at"`
 }
