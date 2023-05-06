@@ -3,7 +3,7 @@ package mw
 import (
 	"context"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 func GetToken(db *redis.Client) func(string, context.Context) (string, error) {
