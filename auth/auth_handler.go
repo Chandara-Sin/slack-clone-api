@@ -2,10 +2,11 @@ package auth
 
 import (
 	"crypto/rand"
+	"fmt"
+	"math"
 	"math/big"
 	"net/http"
 	"slack-clone-api/logger"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,8 +32,8 @@ func SignUpHandler(svc AuthRepository) gin.HandlerFunc {
 			return
 		}
 
-		n := generateAuthCode()
-		token, _ := svc.SetAuthToken(strconv.FormatInt(n, 10), c)
+		n := generateAuthCode(6)
+		token, _ := svc.SetAuthToken(n, c)
 
 		c.JSON(http.StatusOK, gin.H{
 			"auth_code":    n,
@@ -105,8 +106,10 @@ func SignOutHandler(svc AuthRepository) gin.HandlerFunc {
 	}
 }
 
-func generateAuthCode() int64 {
-	max := big.NewInt(999999)
-	n, _ := rand.Int(rand.Reader, max)
-	return n.Int64()
+func generateAuthCode(maxDigits uint32) string {
+	bi, _ := rand.Int(
+		rand.Reader,
+		big.NewInt(int64(math.Pow(10, float64(maxDigits)))),
+	)
+	return fmt.Sprintf("%0*d", maxDigits, bi)
 }
