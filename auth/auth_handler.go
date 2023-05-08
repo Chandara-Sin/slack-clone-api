@@ -43,7 +43,7 @@ func SignUpHandler(svc AuthRepository) gin.HandlerFunc {
 			return
 		}
 
-		token, err := svc.SetAuthToken(authCode, c)
+		token, err := svc.SetAuthToken(usr.Email, authCode, c)
 		if err != nil {
 			log.Error(err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{

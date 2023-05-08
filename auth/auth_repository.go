@@ -5,7 +5,8 @@ import (
 	"slack-clone-api/domain/user"
 	"time"
 
-	"github.com/google/uuid"
+	b64 "encoding/base64"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/uptrace/bun"
 )
@@ -26,8 +27,8 @@ func (a AuthRepository) InsertUserByEmail(eml string, ctx context.Context) (user
 	return usr, err
 }
 
-func (a AuthRepository) SetAuthToken(authCode string, ctx context.Context) (string, error) {
-	token := uuid.New().String()
+func (a AuthRepository) SetAuthToken(key string, authCode string, ctx context.Context) (string, error) {
+	token := b64.StdEncoding.EncodeToString([]byte(key))
 	now := time.Now()
 	durat := now.Add(5 * time.Minute)
 	err := a.RDB.Set(ctx, token, authCode, durat.Sub(now)).Err()
