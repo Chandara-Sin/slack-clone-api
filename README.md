@@ -21,8 +21,11 @@ redis:
 jwt:
   secret:
 api:
-  key:
-    public:
+  key: x-api-key
+    public: <public-key-vlaue>
+mail:
+  sender: <sender-email>
+  key: <sendgrid-key>
 ```
 
 ### Use Docker + Postgres
