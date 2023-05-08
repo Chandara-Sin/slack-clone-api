@@ -1,3 +1,5 @@
+.PHONY: run up down migrate-init migrate rollback create-sql
+
 run:
 	go run cmd/main.go
 
