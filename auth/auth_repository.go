@@ -7,13 +7,22 @@ import (
 
 	b64 "encoding/base64"
 
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	"github.com/spf13/viper"
 	"github.com/uptrace/bun"
 )
 
 type AuthRepository struct {
 	DB  *bun.DB
 	RDB *redis.Client
+}
+
+func (a AuthRepository) GetUserByEmail(eml string, ctx context.Context) (user.User, error) {
+	usr := user.User{}
+	err := a.DB.NewSelect().Model(&usr).Where("email = ?", eml).Scan(ctx)
+	return usr, err
 }
 
 func (a AuthRepository) InsertUserByEmail(eml string, ctx context.Context) (user.User, error) {
@@ -46,4 +55,25 @@ func (a AuthRepository) ClearAuthCode(key string, ctx context.Context) error {
 		return nil
 	}
 	return rs.Err()
+}
+
+func (a AuthRepository) GenerateToken(usr user.User) (string, error) {
+	claims := &JwtCustomClaims{
+		UserID: usr.ID.String(),
+		Role:   usr.Role,
+		Email:  usr.Email,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ID:       uuid.New().String(),
+			Issuer:   "https://slack-clone-api",
+			Audience: jwt.ClaimStrings{"Slack Auth Api"},
+			IssuedAt: jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tk, err := jwtToken.SignedString([]byte(viper.GetString("jwt.secret")))
+	if err != nil {
+		return "", err
+	}
+	return tk, nil
 }
