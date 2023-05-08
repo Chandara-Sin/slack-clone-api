@@ -74,51 +74,38 @@ func AuthCodeHandler(svc AuthRepository) gin.HandlerFunc {
 			return
 		}
 
-		code, err := svc.GetAuthCode(authCode.Token, c)
-		if err != nil {
+		if code, err := svc.GetAuthCode(authCode.Token, c); err != nil {
 			log.Error(err.Error())
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": err.Error(),
 			})
 			return
-		}
-
-		if code != authCode.Code {
-			log.Error("wrong auth code")
+		} else if code != authCode.Code {
+			log.Error("Invalid Auth Code")
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": "unauthorized",
 			})
 			return
 		}
 
-		err = svc.ClearAuthCode(authCode.Token, c)
-		if err != nil {
+		if err := svc.ClearAuthCode(authCode.Token, c); err != nil {
 			log.Error(err.Error())
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
 
-		email, _ := decodeBase64(authCode.Token)
-		usr, err := svc.GetUserByEmail(email, c)
+		usr, err := svc.GetUserByEmail(decodeBase64(authCode.Token), c)
 		if err != nil {
 			log.Error(err.Error())
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
 
-		token, err := svc.GenerateToken(usr)
-		if err != nil {
-			log.Error(err.Error())
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-
+		token, _ := svc.GenerateToken(usr)
 		c.JSON(http.StatusOK, gin.H{
 			"session_token": token,
 			"token_type":    "ID",
@@ -162,7 +149,7 @@ func generateAuthCode(maxDigits uint32) string {
 	return fmt.Sprintf("%0*d", maxDigits, bi)
 }
 
-func decodeBase64(value string) (string, error) {
-	decoded, err := b64.StdEncoding.DecodeString(value)
-	return string(decoded[:]), err
+func decodeBase64(value string) string {
+	decoded, _ := b64.StdEncoding.DecodeString(value)
+	return string(decoded[:])
 }

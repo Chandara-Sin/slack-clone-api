@@ -69,11 +69,7 @@ func (a AuthRepository) GenerateToken(usr user.User) (string, error) {
 			IssuedAt: jwt.NewNumericDate(time.Now()),
 		},
 	}
-
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tk, err := jwtToken.SignedString([]byte(viper.GetString("jwt.secret")))
-	if err != nil {
-		return "", err
-	}
-	return tk, nil
+	return tk, err
 }
