@@ -24,19 +24,9 @@ type AuthCode struct {
 	GrantType GrantType `json:"grant_type" binding:"required"`
 }
 
-type SignOut struct {
-	Token         string `json:"token"`
-	TokenTypeHint string `json:"token_type_hint"`
-}
-
 type JwtCustomClaims struct {
 	UserID string    `json:"user_id"`
 	Role   user.Role `json:"role"`
 	Email  string    `json:"email"`
 	jwt.RegisteredClaims
-}
-
-type AuthToken struct {
-	AccessToken  string
-	RefreshToken string
 }

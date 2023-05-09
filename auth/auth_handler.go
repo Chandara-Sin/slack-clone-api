@@ -113,34 +113,6 @@ func AuthCodeHandler(svc AuthRepository) gin.HandlerFunc {
 	}
 }
 
-func SignOutHandler(svc AuthRepository) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		log := logger.Unwrap(c)
-
-		signOut := SignOut{}
-		if err := c.ShouldBindJSON(&signOut); err != nil {
-			log.Error(err.Error())
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-
-		err := svc.ClearAuthCode(signOut.Token, c)
-		if err != nil {
-			log.Error(err.Error())
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{
-			"status": "ok",
-		})
-	}
-}
-
 func generateAuthCode(maxDigits uint32) string {
 	bi, _ := rand.Int(
 		rand.Reader,

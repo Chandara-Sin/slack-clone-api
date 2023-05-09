@@ -68,7 +68,6 @@ func main() {
 	a.POST("/oauth/signup", auth.SignUpHandler(authRepository))
 	a.POST("/oauth/authcode", auth.AuthCodeHandler(authRepository))
 	a.POST("/users", user.CreateUserHanlder(user.Create(db)))
-	a.POST("/oauth/revoke", auth.SignOutHandler(authRepository))
 
 	u := r.Group("/api")
 	u.Use(mw.JWTConfig(viper.GetString("jwt.secret"), mw.GetToken(rdb)))
