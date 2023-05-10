@@ -70,7 +70,7 @@ func main() {
 	a.POST("/users", user.CreateUserHanlder(user.Create(db)))
 
 	u := r.Group("/api")
-	u.Use(mw.JWTConfig(viper.GetString("jwt.secret"), mw.GetToken(rdb)))
+	u.Use(mw.JWTConfig(viper.GetString("jwt.secret")))
 	u.GET("/users/info", user.GetUserHanlder(user.GetUser(db)))
 
 	s := &http.Server{

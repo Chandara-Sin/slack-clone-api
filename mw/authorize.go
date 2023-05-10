@@ -1,7 +1,6 @@
 package mw
 
 import (
-	"context"
 	b64 "encoding/base64"
 	"fmt"
 	"net/http"
@@ -13,13 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type getTokenFunc func(string, context.Context) (string, error)
-
-func (fn getTokenFunc) GetToken(ID string, ctx context.Context) (string, error) {
-	return fn(ID, ctx)
-}
-
-func JWTConfig(sign string, svc getTokenFunc) gin.HandlerFunc {
+func JWTConfig(sign string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authKey := c.Request.Header.Get("Authorization")
 		tokenString := strings.TrimPrefix(authKey, "Bearer ")
@@ -39,16 +32,6 @@ func JWTConfig(sign string, svc getTokenFunc) gin.HandlerFunc {
 			return
 		}
 
-		// if payload := auth.GetTokenClaims(token); payload != nil {
-		// 	at, err := svc.GetToken(payload.UserID, c)
-		// 	if err != nil || at != tokenString {
-		// 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-		// 			"error": "unauthorized",
-		// 		})
-		// 		return
-		// 	}
-		// }
-
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			ID := claims["user_id"].(string)
 			UUID, _ := uuid.Parse(ID)
@@ -67,14 +50,12 @@ func ValidatorOnlyAPIKey(apiKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		apiKeyHeader := c.Request.Header.Get("X-API-KEY")
 		apiKeyEnc := b64.StdEncoding.EncodeToString([]byte(apiKey))
-
 		if apiKeyHeader != apiKeyEnc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": "Unauthorized",
 			})
 			return
 		}
-
 		c.Next()
 	}
 }
