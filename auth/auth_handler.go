@@ -54,7 +54,6 @@ func SignUpHandler(svc AuthRepository) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"auth_code":    authCode,
 			"access_token": token,
 			"token_type":   "Bearer",
 		})

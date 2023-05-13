@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"slack-clone-api/domain/user"
 	"time"
 
@@ -62,6 +63,7 @@ func (a AuthRepository) GenerateToken(usr user.User) (string, error) {
 		UserID: usr.ID.String(),
 		Role:   usr.Role,
 		Email:  usr.Email,
+		Name:   fmt.Sprintf("%s %s", usr.FirstName, usr.LastName),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:       uuid.New().String(),
 			Issuer:   "https://slack-clone-api",
