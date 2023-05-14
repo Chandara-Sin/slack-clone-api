@@ -22,7 +22,7 @@ jwt:
   secret:
 api:
   key: x-api-key
-    public: <public-key-vlaue>
+    public: <public-key>
 mail:
   sender: <sender-email>
   key: <sendgrid-key>
