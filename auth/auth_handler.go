@@ -80,9 +80,9 @@ func AuthCodeHandler(svc AuthRepository) gin.HandlerFunc {
 			})
 			return
 		} else if code != authCode.Code {
-			log.Error("Invalid Auth Code")
+			log.Error("invalid auth code")
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "unauthorized",
+				"error": "invalid auth code",
 			})
 			return
 		}
