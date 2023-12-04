@@ -7,7 +7,6 @@ import (
 	"math"
 	"math/big"
 	"net/http"
-	"slack-clone-api/domain/mail"
 	"slack-clone-api/logger"
 
 	"github.com/gin-gonic/gin"
@@ -35,14 +34,14 @@ func SignUpHandler(svc AuthRepository) gin.HandlerFunc {
 		}
 
 		authCode := generateAuthCode(6)
-		err = mail.MailHandler(usr, authCode)
-		if err != nil {
-			log.Error(err.Error())
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": err,
-			})
-			return
-		}
+		// err = mail.MailHandler(usr, authCode)
+		// if err != nil {
+		// 	log.Error(err.Error())
+		// 	c.JSON(http.StatusInternalServerError, gin.H{
+		// 		"error": err,
+		// 	})
+		// 	return
+		// }
 
 		token, err := svc.SetAuthToken(usr.Email, authCode, c)
 		if err != nil {
