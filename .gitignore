@@ -2,3 +2,4 @@ config.yml
 config-dev.yml
 volumes
 .vscode
+.DS_Store
