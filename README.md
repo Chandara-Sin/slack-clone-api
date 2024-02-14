@@ -1,10 +1,10 @@
 # SLACK-CLONE-BACKEND
 
+<br/>[![run time: Makefile](https://img.shields.io/badge/Run_Time-Makefile-e63946.svg?style=flat-square)](https://github.com/prettier/prettier)
+
 ## For development
 
-This is project use MakeFile
-
-### create `config.yml`
+### Create `config.yml`
 
 ```yaml
 app:
@@ -54,8 +54,8 @@ make migrate
 
 ### Run server
 
-serve on `http://localhost:8080`
-
 ```sh
 make run
 ```
+
+Serve on `http://localhost:8080`
