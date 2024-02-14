@@ -1,6 +1,6 @@
 # SLACK-CLONE-BACKEND
 
-[![run time: Makefile](https://img.shields.io/badge/Run_Time-Makefile-e63946.svg?style=flat-square)](https://github.com/prettier/prettier)
+[![run time: Makefile](https://img.shields.io/badge/Run_Time-Makefile-e63946.svg?style=flat-square)](https://makefiletutorial.com/#makefile-cookbook)
 
 ## For development
 
